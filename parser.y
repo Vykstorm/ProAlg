@@ -29,19 +29,66 @@
 %token <C_literal_booleano> T_literal_booleano
 %token <C_literal_caracter> T_literal_caracter
 %token <C_literal_string> T_literal_string
+
 %token <C_id> T_id
-%token T_creacion_tipo
-%token T_tupla
-%token T_ftupla
-%token T_tabla
+
+%token T_asignacion
 %token T_comp_secuencial
-%token T_de
+%token T_separador
 %token T_subrango
+%token T_def_tipo_variable
+%token T_entonces
+%token T_si_no_si
+%token T_creacion_tipo
 %token T_inic_array
 %token T_fin_array
+
+
+%token T_accion
+%token T_real
+%token T_entero
+%token T_caracter
+%token T_booleano
+%token T_string
 %token T_ref
-%token T_def_tipo_variable
+%token T_de
+%token T_algoritmo
+%token T_const
+%token T_continuar
+%token T_dev 
+%token T_div
+%token T_ent
+%token T_es
+%token T_faccion 
+%token T_falgoritmo
+%token T_fconst
+%token T_ffuncion
+%token T_fmientras
+%token T_fpara
+%token T_fsi
+%token T_ftipo
+%token T_ftupla 
+%token T_funcion 
+%token T_fvar
+%token T_hacer
+%token T_hasta
+%token T_mientras
+%token T_mod
+%token T_no
+%token T_o
+%token T_para 
+%token T_sal
+%token T_si
+%token T_tabla
+%token T_tipo
+%token T_tupla
+%token T_var
+%token T_y
+
 %token <C_tipo_base> T_tipo_base
+
+
+
 %%
 	/* Zona de declaración de producciones de la gramática */
 sentencia:
