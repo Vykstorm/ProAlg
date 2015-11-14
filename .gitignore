@@ -30,3 +30,8 @@
 
 # Debug files
 *.dSYM/
+
+
+# C files
+*.c
+*.h
