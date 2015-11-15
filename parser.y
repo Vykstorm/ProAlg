@@ -100,16 +100,17 @@ lista_de_cte:
 	lista_de_cte definicion_cte
 	| definicion_cte
 definicion_cte:
-	T_id T_creacion_tipo constante T_comp_secuencial  {printf("%s\n",$1);} 
+	T_id T_creacion_tipo constante T_comp_secuencial  {} 
 constante:
 	literal
-	| T_literal_booleano {printf("%d\n",$1);}
+	| T_literal_booleano {}
 literal:
-	T_literal_entero {printf("%d\n",$1);}
-	| T_literal_real {printf("%f\n",$1);}
-	| T_literal_caracter {printf("%s\n",$1);}
-	| T_literal_string {printf("%s\n",$1);}
+	T_literal_entero {}
+	| T_literal_real {}
+	| T_literal_caracter {}
+	| T_literal_string {}
 	
+
 
 /* Declaraciones de tipos */	
 lista_de_tipo:
@@ -120,11 +121,11 @@ definicion_tipo:
 
 d_tipo:
 	T_tupla lista_campos T_ftupla 
-	| T_tabla T_inic_array expresion_t T_subrango expresion_t T_fin_array T_de d_tipo
+	| T_tabla T_inic_array expresion_t T_subrango expresion_t T_fin_array T_de d_tipo { }
 	| T_id
 	|  expresion_t T_subrango expresion_t
 	| T_ref d_tipo 
-	| T_tipo_base {printf("%s\n",$1);}
+	| T_tipo_base { }
 
 expresion_t:
 	T_literal_caracter
