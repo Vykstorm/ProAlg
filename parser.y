@@ -95,22 +95,6 @@ sentencia:
 	lista_de_cte
 |lista_de_tipo
 
-/* Declaración de constantes y variables */
-lista_de_cte:
-	lista_de_cte definicion_cte
-	| definicion_cte
-definicion_cte:
-	T_id T_creacion_tipo constante T_comp_secuencial  {} 
-constante:
-	literal
-	| T_literal_booleano {}
-literal:
-	T_literal_entero {}
-	| T_literal_real {}
-	| T_literal_caracter {}
-	| T_literal_string {}
-	
-
 
 /* Declaraciones de tipos */	
 lista_de_tipo:
@@ -134,6 +118,23 @@ lista_campos:
 	|definicion_campos
 definicion_campos:
 	T_id T_def_tipo_variable d_tipo T_comp_secuencial 
+
+
+/* Declaración de constantes y variables */
+lista_de_cte:
+	lista_de_cte definicion_cte
+	| definicion_cte
+definicion_cte:
+	T_id T_creacion_tipo constante T_comp_secuencial  {} 
+constante:
+	literal
+	| T_literal_booleano {}
+literal:
+	T_literal_entero {}
+	| T_literal_real {}
+	| T_literal_caracter {}
+	| T_literal_string {}
+	
 
 %%
 	/* Definición de procedimientos auxiliares */
