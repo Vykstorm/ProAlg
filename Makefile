@@ -15,7 +15,7 @@ all: proalg
 	rm -f scanner_debug.flex
 
 parser.c: parser.y
-	bison --defines=parser.tab.h -o $@ $<
+	bison --defines=parser.tab.h -o $@ $< 2> /dev/null
 
 scanner_debug.flex: scanner.flex 
 	cat $< | sed 's/{\([^}]*\)} [ ]*{\([^}]*\)}/{\1} {printf(\"shift: %s(%s)\\n\", \"\1\", yytext); \2}/g' > $@
