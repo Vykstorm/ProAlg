@@ -12,9 +12,9 @@
  /* Necesaria la inclusión de esta cabecera para que los tokens (definidos
   * por bison), puedan sean visibles para flex)
   */
-#include "parser.tab.h"
-						
+#include "parser.tab.h"						
 #include <stdio.h>
+
 
 %}
 
@@ -87,7 +87,6 @@ r_string (?i:"string")
 /* Definición de expresiones regulares asociadas a literales */
 literal_entero (\+|\-)?{digito}{digito}*((e|E){digito}{digito})? 
 literal_real (\+|\-)?{digito}{digito}*(\.{digito}{digito}*)?((e|E){digito}{digito}*)?
-literal_booleano (?i:"verdadero"|"falso")
 literal_caracter \'{letra}\'
 literal_string \"([^\"]|\/\")*\"
 
@@ -96,14 +95,16 @@ comentario \{([^\}]|\/\})*\}
 
 %%
 	/* Zona de definición de reglas */
-{delim} { } 
+{delim} {  } 
 	/* Reglas para literales */
 {literal_entero} { yylval.C_literal_entero=atoi(yytext);return T_literal_entero;}
 {literal_real} {yylval.C_literal_entero=atof(yytext); return T_literal_real; }
-{literal_booleano} {yylval.C_literal_entero=atoi(yytext); return T_literal_booleano; }
 {literal_caracter} {strcpy(yylval.C_literal_string, yytext); return T_literal_caracter;}
 {literal_string} { strcpy(yylval.C_literal_string, yytext);  return T_literal_string; }
 {comentario} {}
+	/* Tenemos un caso especial para literales booleanos */
+{r_verdadero} { yylval.C_literal_booleano=1; return T_literal_booleano; }
+{r_falso} { yylval.C_literal_booleano=0; return T_literal_booleano; }
 
 {asignacion} { return T_asignacion; }
 {comp_secuencial} {return T_comp_secuencial; }
@@ -160,6 +161,3 @@ comentario \{([^\}]|\/\})*\}
 {id} { strcpy(yylval.C_id, yytext); return T_id;}
 
 %%
-
-
-
