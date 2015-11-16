@@ -35,3 +35,6 @@
 # C files
 *.c
 *.h
+
+# Executable file
+proalg
