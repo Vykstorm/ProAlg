@@ -92,8 +92,17 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 sentencia:
-	lista_de_var
+	declaracion_var 
+	| declaracion_cte { }
+	| declaracion_tipo  {  }
 
+/* Declaraciones */
+declaracion_tipo:
+	T_tipo lista_de_tipo T_ftipo T_comp_secuencial
+declaracion_cte:
+	T_const lista_de_cte T_fconst T_comp_secuencial
+declaracion_var:
+	T_var lista_de_var T_fvar T_comp_secuencial
 
 /* Declaraciones de tipos */	
 lista_de_tipo:
@@ -135,8 +144,8 @@ literal:
 	| T_literal_string {}
 
 lista_de_var:
-	lista_de_var definicion_var
-	| definicion_var
+	lista_de_var definicion_var 
+	| definicion_var { }
 definicion_var:
 	lista_id T_def_tipo_variable T_id T_comp_secuencial { }
 	| lista_id T_def_tipo_variable d_tipo T_comp_secuencial { }
@@ -145,7 +154,7 @@ lista_id:
 	| T_id
 
 decl_ent_sal: 
-	decl_ent { printf("declaracion de entrada\n"); }
+	decl_ent {  }
 	| decl_ent decl_sal 
 	| decl_sal
 decl_ent: 
