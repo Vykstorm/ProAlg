@@ -92,8 +92,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 sentencia:
-	lista_de_cte
-|lista_de_tipo
+	lista_de_var
 
 
 /* Declaraciones de tipos */	
@@ -134,7 +133,25 @@ literal:
 	| T_literal_real {}
 	| T_literal_caracter {}
 	| T_literal_string {}
-	
+
+lista_de_var:
+	lista_de_var definicion_var
+	| definicion_var
+definicion_var:
+	lista_id T_def_tipo_variable T_id T_comp_secuencial { }
+	| lista_id T_def_tipo_variable d_tipo T_comp_secuencial { }
+lista_id:
+	lista_id T_separador T_id
+	| T_id
+
+decl_ent_sal: 
+	decl_ent { printf("declaracion de entrada\n"); }
+	| decl_ent decl_sal 
+	| decl_sal
+decl_ent: 
+	T_ent lista_de_var
+decl_sal:
+	T_sal lista_de_var
 
 %%
 	/* Definición de procedimientos auxiliares */
