@@ -1,8 +1,11 @@
 flex_debug = no
+bison_debug = no
 debug = no
+
 
 ifeq ($(debug),yes)
 	flex_debug = yes
+	bison_debug = yes
 endif
 
 ifeq ($(flex_debug),yes)
@@ -11,14 +14,24 @@ else
 	scanner = scanner.flex
 endif
 
-all: proalg
-	rm -f scanner_debug.flex
+ifeq ($(bison_debug),yes)
+	parser = parser_debug.y
+else
+	parser = parser.y
+endif
 
-parser.c: parser.y
+all: proalg
+
+parser_debug.y: parser.y
+	cat parser.y | grep -n '%%' | tail -n 1 | sed 's/\([0-9]*\):%%/\1/g' | xargs head parser.y -n | head -n -1 > parser_debug.y
+	cat parser.y | grep %token | sed 's/%token[ ]*T_\([a-zA-Z_]*\)/T_\1/g' | sed 's/%token[ ]*<[^>]*>[ ]*T_\([a-zA-Z_]*\)/T_\1/g' | sed 's/T_\([A-Za-z_]*\)/Tr_\1:\n\tT_\1 { printf(\"shift: %s\", \"T_\1\"); }/g' >> parser_debug.y 	
+	cat parser.y | grep -n '%%' | tail -n 1 | sed 's/\([0-9]*\):%%/+\1/g' | xargs tail parser.y -n >> parser_debug.y
+	
+parser.c: $(parser)
 	bison --defines=parser.tab.h -o $@ $< 2> /dev/null
 
 scanner_debug.flex: scanner.flex 
-	cat $< | sed 's/{\([^}]*\)} [ ]*{\([^}]*\)}/{\1} {printf(\"shift: %s(%s)\\n\", \"\1\", yytext); \2}/g' > $@
+	cat $< | sed 's/{\([^}]*\)} [ ]*{\([^}]*\)}/{\1} {printf(\"read-token: %s(%s)\\n\", \"\1\", yytext); \2}/g' > $@
 	
 scanner.c: $(scanner)
 	flex -o $@ $<
@@ -30,4 +43,5 @@ proalg: parser.c scanner.c
 	
 clean: 
 	rm -f proalg *.c *.h 
+	rm -f scanner_debug.flex parser_debug.y
  
