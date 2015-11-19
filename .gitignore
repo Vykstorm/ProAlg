@@ -38,3 +38,8 @@
 
 # Executable file
 proalg
+
+# Debug files
+*_debug.y
+*_debug.c
+*_debug.flex
