@@ -21,6 +21,7 @@
 	char C_literal_string[256];
 	int C_literal_booleano; 
 	char C_tipo_base[16];
+	char C_oprel[3];
 }
 
 /* Asociamos identificadores de tokens de bison a campos de yystype */
@@ -42,6 +43,15 @@
 %token T_creacion_tipo
 %token T_inic_array
 %token T_fin_array
+
+%token T_suma
+%token T_resta
+%token T_div
+%token T_mult
+%token T_mod
+%token T_inic_parentesis
+%token T_fin_parentesis
+%token <C_oprel> T_oprel
 
 
 %token T_accion
@@ -84,6 +94,7 @@
 %token T_tupla
 %token T_var
 %token T_y
+%token T_div_entera;
 
 %token <C_tipo_base> T_tipo_base
 
@@ -92,9 +103,41 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 sentencia:
-	declaracion_var 
-	| declaracion_cte { }
-	| declaracion_tipo  {  }
+	
+	/* Declaraciones para expresiones */
+expresion:
+	exp_a
+	| exp_b
+	| funcion_ll
+
+exp_a:
+	exp_a T_suma exp_a{printf("Hola");}
+	| exp_a T_resta exp_a
+	| exp_a T_mult exp_a
+	| exp_a T_div_entera exp_a
+	| exp_a T_div exp_a
+	| '(' exp_a ')'
+	| operando
+	| T_literal_entero
+	| T_literal_real
+	| '-' exp_a
+	| exp_a '%' exp_a
+
+exp_b:
+	exp_b T_y exp_b
+	| exp_b T_o exp_b
+	| exp_b T_no exp_b
+	| operando
+	| T_booleano
+	| expresion T_oprel expresion
+	| '(' exp_b ')'
+
+operando:
+	T_id
+	| operando '.' operando
+	| operando T_inic_array expresion T_fin_array
+	| operando T_ref
+
 
 /* Declaraciones */
 declaracion_tipo:
