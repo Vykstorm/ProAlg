@@ -31,7 +31,7 @@ parser_debug.y: parser.y
 	
 	
 parser.c: $(parser)
-	bison --defines=parser.tab.h -o $@ $< $(bison_options)
+	bison --defines=parser.tab.h -o $@ $<
 
 scanner_debug.flex: scanner.flex 
 	cat $< | sed 's/{\([^}]*\)} [ ]*{\([^}]*\)}/{\1} {printf(\"read-token: %s(%s)\\n\", \"\1\", yytext); \2}/g' > $@
