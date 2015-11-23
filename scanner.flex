@@ -38,6 +38,18 @@ creacion_tipo "="
 inicio_array "["
 fin_array "]"
 
+
+/* Definición de expresiones regulares asociadas a expresiones aritméticas */
+op_suma "+"
+op_resta "-"
+op_mult "*"
+op_div "/"
+op_mod "%"
+inicio_parentesis "("
+fin_parentesis ")"
+op_rel ">"|"<"|">="|"<="|"="|"<>"
+op_ref "."
+
 /* Definición de expresiones regulares para las palabras reservadas */
 r_accion (?i:"accion")
 r_de (?i:"de")
@@ -85,17 +97,19 @@ r_string (?i:"string")
 
 
 /* Definición de expresiones regulares asociadas a literales */
-literal_entero (\+|\-)?{digito}{digito}*((e|E){digito}{digito})? 
-literal_real (\+|\-)?{digito}{digito}*(\.{digito}{digito}*)?((e|E){digito}{digito}*)?
+literal_entero (\-)?{digito}{digito}*((e|E){digito}{digito})? 
+literal_real (\-)?{digito}{digito}*(\.{digito}{digito}*)?((e|E){digito}{digito}*)?
 literal_caracter \'{letra}\'
 literal_string \"([^\"]|\/\")*\"
 
 /* Definición de la expresión regular para comentarios */
 comentario \{([^\}]|\/\})*\} 
 
+
 %%
 	/* Zona de definición de reglas */
 {delim} {  } 
+
 	/* Reglas para literales */
 {literal_entero} { yylval.C_literal_entero=atoi(yytext);return T_literal_entero;}
 {literal_real} {yylval.C_literal_entero=atof(yytext); return T_literal_real; }
@@ -116,6 +130,18 @@ comentario \{([^\}]|\/\})*\}
 {creacion_tipo} {return T_creacion_tipo; }
 {inicio_array} { return T_inic_array; }
 {fin_array} { return T_fin_array; }
+
+	/* Reglas para operadores aritméticos */
+{op_suma} { return T_suma; }
+{op_resta} { return T_resta; }
+{op_mult} { return T_mult; }
+{op_div} { return T_div; }
+{op_mod} { return T_mod; }
+{op_rel} { strcpy(yylval.C_oprel, yytext); return T_oprel; }
+{inicio_parentesis} { return T_inic_parentesis; }
+{fin_parentesis} { return T_fin_parentesis; }
+	
+
 	/* Reglas para palabras reservadas */
 {r_accion} { return T_accion; }
 {r_real} {strcpy(yylval.C_tipo_base,"real"); return T_tipo_base;}
@@ -129,7 +155,7 @@ comentario \{([^\}]|\/\})*\}
 {r_const} { return T_const; }
 {r_continuar} { return T_continuar; }
 {r_dev} { return T_dev; } 
-{r_div} { return T_div; }
+{r_div} { return T_div_entera; }
 {r_ent} { return T_ent; }
 {r_es} { return T_es; }
 {r_faccion} { return T_faccion; } 
@@ -157,6 +183,7 @@ comentario \{([^\}]|\/\})*\}
 {r_tupla} { return T_tupla; }
 {r_var} { return T_var; }
 {r_y} { return T_y; }
+{op_ref} { return T_referencia; }	
 	
 {id} { strcpy(yylval.C_id, yytext); return T_id;}
 
