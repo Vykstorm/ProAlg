@@ -52,6 +52,7 @@
 %token T_inic_parentesis
 %token T_fin_parentesis
 %token <C_oprel> T_oprel
+%token T_referencia
 
 
 %token T_accion
@@ -66,7 +67,6 @@
 %token T_const
 %token T_continuar
 %token T_dev 
-%token T_div
 %token T_ent
 %token T_es
 %token T_faccion 
@@ -83,7 +83,6 @@
 %token T_hacer
 %token T_hasta
 %token T_mientras
-%token T_mod
 %token T_no
 %token T_o
 %token T_para 
@@ -103,40 +102,89 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 sentencia:
+	funcion_ll
 	
-	/* Declaraciones para expresiones */
+/* Declaración para la estructura básica de un programa ProAlg */
+bloque:
+	declaraciones instrucciones
+	| instrucciones
+	
+declaraciones:
+	declaraciones declaracion_tipo
+	| declaraciones declaracion_cte
+	| declaraciones declaracion_var
+	| declaracion_tipo
+	| declaracion_cte
+	| declaracion_var
+	
+	
+/* Declaraciones para expresiones */
 expresion:
 	exp_a
 	| exp_b
-	| funcion_ll
 
 exp_a:
-	exp_a T_suma exp_a{printf("Hola");}
-	| exp_a T_resta exp_a
-	| exp_a T_mult exp_a
-	| exp_a T_div_entera exp_a
-	| exp_a T_div exp_a
-	| '(' exp_a ')'
+	exp_a T_suma exp_a 
+	| exp_a T_resta exp_a 
+	| exp_a T_mult exp_a 
+	| exp_a T_div_entera exp_a 
+	| exp_a T_div exp_a 
+	| T_inic_parentesis exp_a T_fin_parentesis
 	| operando
 	| T_literal_entero
 	| T_literal_real
-	| '-' exp_a
-	| exp_a '%' exp_a
+	| T_resta exp_a
+	| exp_a T_mod exp_a
 
 exp_b:
 	exp_b T_y exp_b
-	| exp_b T_o exp_b
-	| exp_b T_no exp_b
+	| exp_b T_o exp_b 
+	| T_no exp_b 
 	| operando
-	| T_booleano
+	| T_literal_booleano 
 	| expresion T_oprel expresion
-	| '(' exp_b ')'
+	| T_inic_parentesis exp_b T_fin_parentesis 
 
 operando:
 	T_id
-	| operando '.' operando
-	| operando T_inic_array expresion T_fin_array
+	| operando T_referencia operando 
+	| operando T_inic_array expresion T_fin_array 
 	| operando T_ref
+
+
+
+/* Declaración para instrucciones */
+instrucciones:
+	instrucciones T_comp_secuencial instruccion
+	| instruccion 
+
+instruccion:
+	T_continuar 
+	| asignacion
+	| alternativa
+	| iteracion
+
+asignacion:
+	operando T_asignacion expresion 
+
+alternativa:
+	T_si expresion T_entonces instrucciones lista_opciones T_fsi 
+	| T_si expresion T_entonces instrucciones T_fsi 
+
+lista_opciones:
+	T_si_no_si expresion T_entonces instrucciones lista_opciones 
+	| T_si_no_si expresion T_entonces instrucciones 
+
+iteracion:
+	it_cota_fija
+	| it_cota_exp
+
+it_cota_exp:
+	T_mientras expresion T_hacer instrucciones T_fmientras 
+
+it_cota_fija:
+	T_para T_id T_asignacion expresion T_hasta expresion T_hacer instrucciones T_fpara 
+	
 
 
 /* Declaraciones */
@@ -160,7 +208,7 @@ d_tipo:
 	| T_id
 	|  expresion_t T_subrango expresion_t
 	| T_ref d_tipo 
-	| T_tipo_base { }
+	| T_tipo_base { }	
 
 expresion_t:
 	T_literal_caracter
@@ -204,6 +252,39 @@ decl_ent:
 	T_ent lista_de_var
 decl_sal:
 	T_sal lista_de_var
+
+
+/* Acciones y funciones */
+accion_d:
+	T_accion a_cabecera bloque T_faccion
+
+funcion_d:
+	T_funcion f_cabecera bloque T_dev expresion T_ffuncion
+
+a_cabecera:
+	T_id T_inic_parentesis d_par_form T_fin_parentesis T_comp_secuencial 
+	| T_id T_inic_parentesis T_fin_parentesis T_comp_secuencial
+
+f_cabecera:
+	T_id T_inic_parentesis lista_de_var T_fin_parentesis T_dev d_tipo T_comp_secuencial
+
+d_par_form:
+	d_par_form T_comp_secuencial d_p_form
+	| d_p_form
+d_p_form:
+	T_ent lista_id T_def_tipo_variable d_tipo
+	| T_sal lista_id T_def_tipo_variable d_tipo
+	| T_es lista_id T_def_tipo_variable d_tipo
+
+accion_ll:
+	T_id T_inic_parentesis l_ll T_fin_parentesis 
+	
+funcion_ll:
+	T_id T_inic_parentesis l_ll T_fin_parentesis
+
+l_ll:
+	l_ll T_separador expresion 
+	| expresion
 
 %%
 	/* Definición de procedimientos auxiliares */
