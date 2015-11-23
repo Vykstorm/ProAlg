@@ -93,7 +93,8 @@
 %token T_tupla
 %token T_var
 %token T_y
-%token T_div_entera;
+%token T_div_entera
+%token T_comentario
 
 %token <C_tipo_base> T_tipo_base
 
@@ -102,9 +103,30 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 sentencia:
-	funcion_ll
+	expresion
 	
 /* Declaración para la estructura básica de un programa ProAlg */
+desc_algoritmo:
+	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
+
+cabecera_alg:
+	decl_globales decl_a_f decl_ent_sal T_comentario
+
+bloque_alg:
+	bloque T_comentario
+
+decl_globales:
+	decl_globales declaracion_tipo
+	|decl_globales declaracion_cte
+	|declaracion_tipo
+	|declaracion_cte
+
+decl_a_f:
+	decl_a_f accion_d
+	|decl_a_f funcion_d
+	|accion_d
+	|funcion_d
+
 bloque:
 	declaraciones instrucciones
 	| instrucciones
@@ -124,7 +146,7 @@ expresion:
 	| exp_b
 
 exp_a:
-	exp_a T_suma exp_a 
+	exp_a T_suma exp_a {printf("Suma\n");}
 	| exp_a T_resta exp_a 
 	| exp_a T_mult exp_a 
 	| exp_a T_div_entera exp_a 

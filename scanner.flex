@@ -115,7 +115,7 @@ comentario \{([^\}]|\/\})*\}
 {literal_real} {yylval.C_literal_entero=atof(yytext); return T_literal_real; }
 {literal_caracter} {strcpy(yylval.C_literal_string, yytext); return T_literal_caracter;}
 {literal_string} { strcpy(yylval.C_literal_string, yytext);  return T_literal_string; }
-{comentario} {}
+{comentario} {return T_comentario;}
 	/* Tenemos un caso especial para literales booleanos */
 {r_verdadero} { yylval.C_literal_booleano=1; return T_literal_booleano; }
 {r_falso} { yylval.C_literal_booleano=0; return T_literal_booleano; }
