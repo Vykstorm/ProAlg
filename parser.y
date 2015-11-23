@@ -103,7 +103,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 sentencia:
-	expresion
+	cabecera_alg
 	
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
@@ -111,21 +111,18 @@ desc_algoritmo:
 
 cabecera_alg:
 	decl_globales decl_a_f decl_ent_sal T_comentario
-
 bloque_alg:
 	bloque T_comentario
 
 decl_globales:
 	decl_globales declaracion_tipo
 	|decl_globales declaracion_cte
-	|declaracion_tipo
-	|declaracion_cte
+	|
 
 decl_a_f:
 	decl_a_f accion_d
 	|decl_a_f funcion_d
-	|accion_d
-	|funcion_d
+	|
 
 bloque:
 	declaraciones instrucciones
@@ -135,9 +132,7 @@ declaraciones:
 	declaraciones declaracion_tipo
 	| declaraciones declaracion_cte
 	| declaraciones declaracion_var
-	| declaracion_tipo
-	| declaracion_cte
-	| declaracion_var
+	|
 	
 	
 /* Declaraciones para expresiones */
@@ -146,7 +141,7 @@ expresion:
 	| exp_b
 
 exp_a:
-	exp_a T_suma exp_a {printf("Suma\n");}
+	exp_a T_suma exp_a 
 	| exp_a T_resta exp_a 
 	| exp_a T_mult exp_a 
 	| exp_a T_div_entera exp_a 
@@ -267,9 +262,9 @@ lista_id:
 	| T_id
 
 decl_ent_sal: 
-	decl_ent {  }
+	decl_ent
 	| decl_ent decl_sal 
-	| decl_sal
+	| decl_sal 
 decl_ent: 
 	T_ent lista_de_var
 decl_sal:
@@ -281,7 +276,7 @@ accion_d:
 	T_accion a_cabecera bloque T_faccion
 
 funcion_d:
-	T_funcion f_cabecera bloque T_dev expresion T_ffuncion
+	T_funcion f_cabecera bloque T_dev expresion T_ffuncion {printf("funcion\n");}
 
 a_cabecera:
 	T_id T_inic_parentesis d_par_form T_fin_parentesis T_comp_secuencial 
