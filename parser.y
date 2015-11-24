@@ -93,7 +93,23 @@
 
 %token <C_tipo_base> T_tipo_base
 
+%left T_o
+%left T_y
+%right T_no
 
+%left T_suma T_resta
+%left T_mult T_div T_div_entera
+%left T_mod
+
+
+
+%right T_referencia
+%left T_ref
+
+%nonassoc T_oprel
+
+%left T_comp_secuencial
+%left T_separador
 
 %%
 	/* Zona de declaración de producciones de la gramática */
@@ -133,6 +149,7 @@ declaraciones:
 expresion:
 	exp_a
 	| exp_b
+	|funcion_ll
 
 exp_a:
 	exp_a T_suma exp_a 
@@ -154,7 +171,7 @@ exp_b:
 	| operando
 	| T_literal_booleano 
 	| expresion T_oprel expresion
-	| T_inic_parentesis exp_b T_fin_parentesis 
+	bloqu| T_inic_parentesis exp_b T_fin_parentesis 
 
 operando:
 	T_id
@@ -182,7 +199,7 @@ asignacion:
 alternativa:
 	T_si expresion T_entonces instrucciones lista_opciones T_fsi 
 
-lista_opciones:
+lisbloquta_opciones:
 	T_si_no_si expresion T_entonces instrucciones lista_opciones 
 	|
 
@@ -253,7 +270,7 @@ lista_id:
 
 decl_ent_sal: 
 	decl_ent
-	| decl_ent decl_sal 
+	| bloqudecl_ent decl_sal 
 	| decl_sal 
 decl_ent: 
 	T_ent lista_de_var
@@ -286,9 +303,9 @@ d_p_form:
 accion_ll:
 	T_id T_inic_parentesis l_ll T_fin_parentesis 
 	
-/*funcion_ll:
+funcion_ll:
 	T_id T_inic_parentesis l_ll T_fin_parentesis
-*/
+
 l_ll:
 	expresion T_separador expresion
 	| expresion
