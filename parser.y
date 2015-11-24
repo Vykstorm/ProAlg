@@ -56,11 +56,6 @@
 
 
 %token T_accion
-%token T_real
-%token T_entero
-%token T_caracter
-%token T_booleano
-%token T_string
 %token T_ref
 %token T_de
 %token T_algoritmo
@@ -175,10 +170,11 @@ instrucciones:
 	| instruccion 
 
 instruccion:
-	T_continuar  { printf("instruccion\n"); }
-	| asignacion { printf("instruccion\n"); }
-	| alternativa { printf("instruccion\n"); }
-	| iteracion { printf("instruccion\n"); }
+	T_continuar
+	| asignacion
+	| alternativa 
+	| iteracion
+	|accion_ll
 
 asignacion:
 	operando T_asignacion expresion 
@@ -290,9 +286,9 @@ d_p_form:
 accion_ll:
 	T_id T_inic_parentesis l_ll T_fin_parentesis 
 	
-funcion_ll:
+/*funcion_ll:
 	T_id T_inic_parentesis l_ll T_fin_parentesis
-
+*/
 l_ll:
 	expresion T_separador expresion
 	| expresion
