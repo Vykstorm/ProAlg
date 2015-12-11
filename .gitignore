@@ -37,6 +37,7 @@ proalg
 # C files created by bison or flex
 scanner.c
 parser.c
+parser.tab.h
 
 # Debug files
 *_debug.y
