@@ -45,6 +45,6 @@ proalg: parser.c scanner.c
 	
 	
 clean: 
-	rm -f proalg *.c *.h 
+	rm -f proalg parser.c scanner.c parser.tab.h
 	rm -f scanner_debug.flex parser_debug.y
  
