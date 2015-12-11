@@ -56,11 +56,6 @@
 
 
 %token T_accion
-%token T_real
-%token T_entero
-%token T_caracter
-%token T_booleano
-%token T_string
 %token T_ref
 %token T_de
 %token T_algoritmo
@@ -98,13 +93,28 @@
 
 %token <C_tipo_base> T_tipo_base
 
+%left T_o
+%left T_y
+%right T_no
 
+%left T_suma T_resta
+%left T_mult T_div T_div_entera
+%left T_mod
+
+
+
+%right T_referencia
+%left T_ref
+
+%nonassoc T_oprel
+
+%left T_comp_secuencial
+%left T_separador
 
 %%
 	/* Zona de declaración de producciones de la gramática */
-sentencia:
-	cabecera_alg
-	
+axioma:
+	desc_algoritmo
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -139,6 +149,7 @@ declaraciones:
 expresion:
 	exp_a
 	| exp_b
+	|funcion_ll
 
 exp_a:
 	exp_a T_suma exp_a 
@@ -160,7 +171,7 @@ exp_b:
 	| operando
 	| T_literal_booleano 
 	| expresion T_oprel expresion
-	| T_inic_parentesis exp_b T_fin_parentesis 
+	bloqu| T_inic_parentesis exp_b T_fin_parentesis 
 
 operando:
 	T_id
@@ -172,25 +183,25 @@ operando:
 
 /* Declaración para instrucciones */
 instrucciones:
-	instrucciones T_comp_secuencial instruccion
+	instrucciones T_comp_secuencial instruccion 
 	| instruccion 
 
 instruccion:
-	T_continuar 
+	T_continuar
 	| asignacion
-	| alternativa
+	| alternativa 
 	| iteracion
+	|accion_ll
 
 asignacion:
 	operando T_asignacion expresion 
 
 alternativa:
 	T_si expresion T_entonces instrucciones lista_opciones T_fsi 
-	| T_si expresion T_entonces instrucciones T_fsi 
 
-lista_opciones:
+lisbloquta_opciones:
 	T_si_no_si expresion T_entonces instrucciones lista_opciones 
-	| T_si_no_si expresion T_entonces instrucciones 
+	|
 
 iteracion:
 	it_cota_fija
@@ -214,10 +225,8 @@ declaracion_var:
 
 /* Declaraciones de tipos */	
 lista_de_tipo:
-	lista_de_tipo definicion_tipo
-	| definicion_tipo
-definicion_tipo:
-	T_id T_creacion_tipo d_tipo T_comp_secuencial 
+	T_id T_creacion_tipo d_tipo T_comp_secuencial lista_de_tipo
+	|
 
 d_tipo:
 	T_tupla lista_campos T_ftupla 
@@ -228,20 +237,18 @@ d_tipo:
 	| T_tipo_base { }	
 
 expresion_t:
-	T_literal_caracter
+	expresion 
+	| T_literal_caracter
 lista_campos:
-	lista_campos definicion_campos
-	|definicion_campos
-definicion_campos:
-	T_id T_def_tipo_variable d_tipo T_comp_secuencial 
+	T_id T_def_tipo_variable d_tipo T_comp_secuencial lista_campos
+	|
 
 
 /* Declaración de constantes y variables */
 lista_de_cte:
-	lista_de_cte definicion_cte
-	| definicion_cte
-definicion_cte:
-	T_id T_creacion_tipo constante T_comp_secuencial  {} 
+	T_id T_creacion_tipo constante T_comp_secuencial lista_de_cte
+	|
+
 constante:
 	literal
 	| T_literal_booleano {}
@@ -252,18 +259,18 @@ literal:
 	| T_literal_string {}
 
 lista_de_var:
-	lista_de_var definicion_var 
-	| definicion_var { }
-definicion_var:
-	lista_id T_def_tipo_variable T_id T_comp_secuencial { }
-	| lista_id T_def_tipo_variable d_tipo T_comp_secuencial { }
+	lista_id T_def_tipo_variable T_id T_comp_secuencial lista_de_var
+	| lista_id T_def_tipo_variable d_tipo T_comp_secuencial lista_de_var
+	|
+	
 lista_id:
-	lista_id T_separador T_id
+	T_id T_separador lista_id 
 	| T_id
+	| 
 
 decl_ent_sal: 
 	decl_ent
-	| decl_ent decl_sal 
+	| bloqudecl_ent decl_sal 
 	| decl_sal 
 decl_ent: 
 	T_ent lista_de_var
@@ -273,21 +280,21 @@ decl_sal:
 
 /* Acciones y funciones */
 accion_d:
-	T_accion a_cabecera bloque T_faccion
+	T_accion a_cabecera bloque T_faccion 
 
 funcion_d:
-	T_funcion f_cabecera bloque T_dev expresion T_ffuncion {printf("funcion\n");}
+	T_funcion f_cabecera bloque T_dev expresion T_ffuncion
 
 a_cabecera:
 	T_id T_inic_parentesis d_par_form T_fin_parentesis T_comp_secuencial 
-	| T_id T_inic_parentesis T_fin_parentesis T_comp_secuencial
 
 f_cabecera:
 	T_id T_inic_parentesis lista_de_var T_fin_parentesis T_dev d_tipo T_comp_secuencial
 
 d_par_form:
-	d_par_form T_comp_secuencial d_p_form
-	| d_p_form
+	d_p_form T_comp_secuencial d_par_form
+	| d_p_form 
+	|
 d_p_form:
 	T_ent lista_id T_def_tipo_variable d_tipo
 	| T_sal lista_id T_def_tipo_variable d_tipo
@@ -300,8 +307,9 @@ funcion_ll:
 	T_id T_inic_parentesis l_ll T_fin_parentesis
 
 l_ll:
-	l_ll T_separador expresion 
+	expresion T_separador expresion
 	| expresion
+	|
 
 %%
 	/* Definición de procedimientos auxiliares */
