@@ -29,14 +29,17 @@ typedef struct lista* TS_tabla_simbolos;
 int TS_contador_id = 0;
 TS_tabla_simbolos tabla_simbolos;
 
+/* métodos de creación y eliminación de la tabla de símbolos y las subtablas */
 TS_tabla_simbolos    TS_crear_tabla();
 TS_subtabla_simbolos TS_crear_subtabla();
 
 void            TS_eliminar_subtabla(TS_subtabla_simbolos subtabla);
 void            TS_eliminar_tabla();
 
+/* métodos de busquedas y consultas en la tabla */
 TS_simbolo* TS_buscar_simbolo(const char* nombre);
 
+/* métodos de creación y eliminación de estructuras de datos auxiliares  */
 TS_simbolo*     TS_crear_simbolo(const char* nombre);
 TS_var*         TS_crear_var(int tipo);
 TS_tipo*        TS_crear_tipo(int tipo);
@@ -51,6 +54,8 @@ void            TS_eliminar_tipo(TS_tipo* tipo);
 void            TS_eliminar_cte(TS_cte* cte);
 void            TS_eliminar_accion(TS_accion* accion);
 void            TS_eliminar_funcion(TS_funcion* funcion);
+
+
 
 ///// Implementación de los métodos de la interfaz de la tabla de símbolos
 void TS_inicializar()
@@ -138,7 +143,9 @@ int main(int argc, char** argv)
 {
     TS_inicializar();
 
-    TS_insertar_simbolo("x");
+    TS_insertar_simbolo("vector");
+    TS_modificar_tipo(TS_TIPO | TS_TUPLA);
+    
     TS_liberar();
 }
 
@@ -174,7 +181,6 @@ void TS_eliminar_registro_simbolo(TS_simbolo* simbolo)
             TS_eliminar_accion((TS_accion*)simbolo->registro);
         break;
     }
-    TS_free(simbolo);
 }
 
 void TS_eliminar_simbolo(TS_simbolo* simbolo)
@@ -232,6 +238,9 @@ TS_simbolo* TS_crear_simbolo(const char* nombre)
     return simbolo;
 
 }
+
+
+
 TS_var* TS_crear_var(int tipo)
 {
     TS_var* var = TS_malloc1(TS_var);
@@ -263,9 +272,12 @@ TS_funcion* TS_crear_funcion()
     TS_funcion* accion = TS_malloc1(TS_funcion);
     return accion;
 }
+
+
+
+
 void TS_eliminar_var(TS_var* var)
 {
-    printf("eliminada var\n");
     TS_eliminar_tipo(var->tipo);
     TS_free(var);
 }
