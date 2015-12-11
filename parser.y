@@ -171,7 +171,7 @@ exp_b:
 	| operando
 	| T_literal_booleano 
 	| expresion T_oprel expresion
-	bloqu| T_inic_parentesis exp_b T_fin_parentesis 
+	| T_inic_parentesis exp_b T_fin_parentesis 
 
 operando:
 	T_id
@@ -199,7 +199,7 @@ asignacion:
 alternativa:
 	T_si expresion T_entonces instrucciones lista_opciones T_fsi 
 
-lisbloquta_opciones:
+lista_opciones:
 	T_si_no_si expresion T_entonces instrucciones lista_opciones 
 	|
 
@@ -270,7 +270,7 @@ lista_id:
 
 decl_ent_sal: 
 	decl_ent
-	| bloqudecl_ent decl_sal 
+	| decl_ent decl_sal 
 	| decl_sal 
 decl_ent: 
 	T_ent lista_de_var
