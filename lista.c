@@ -8,16 +8,23 @@
 ////////// Implementación de lista
 
 
-lista* crear_lista()
+lista* crear_lista(int bpel)
 {
     lista* l = (lista*)malloc(sizeof(lista));
     l->primero = NULL;
+    l->bpel = bpel;
     return l;
 }
 
-lista_nodo* crear_nodo()
+void* valor_nodo(const lista_nodo* n)
 {
-    lista_nodo* n = (lista_nodo*)malloc(sizeof(lista_nodo));
+	return (void*)((char*)n + sizeof(lista_nodo));
+}
+
+lista_nodo* crear_nodo(const lista* l, const void* el)
+{
+    lista_nodo* n = (lista_nodo*)malloc(sizeof(lista_nodo) + l->bpel);
+    memcpy(valor_nodo(n), el, l->bpel);
     return n;
 }
 
@@ -47,13 +54,13 @@ void liberar_lista(lista* l)
 void* lista_cabeza(const lista* l)
 {
     assert((l != NULL) && !lista_vacia(l));
-    return l->primero->el.value;
+    return valor_nodo(l->primero);
 }
 
 void* lista_cola(const lista* l)
 {
     assert((l != NULL) && !lista_vacia(l));
-    return l->ultimo->el.value;
+    return valor_nodo(l->ultimo);
 }
 
 int lista_vacia(const lista* l)
@@ -74,22 +81,9 @@ void* lista_consultar(const lista* l, int i)
         j++;
     }
     assert(i == j);
-    return curr->el.value;
+    return valor_nodo(curr);
 }
 
-void lista_modificar(lista* l, int i, void* el)
-{
-    assert((l != NULL) && (i >= 0) && !lista_vacia(l));
-    int j = 0;
-    lista_nodo* curr = l->primero;
-    while((j < i) && (curr->siguiente != NULL))
-    {
-        curr = curr->siguiente;
-        j++;
-    }
-    assert(i == j);
-    curr->el.value = el;
-}
 
 int lista_len(const lista* l)
 {
@@ -104,22 +98,6 @@ int lista_len(const lista* l)
     return len;
 }
 
-int lista_buscar_val(const lista* l, const void* val)
-{
-    assert(l != NULL);
-
-    if(lista_vacia(l))
-        return -1;
-    int j = 0;
-    const lista_nodo* curr = l->primero;
-    while((curr->siguiente != NULL) && (val != curr->el.value))
-    {
-        curr = curr->siguiente;
-        j++;
-    }
-    return (val == curr->el.value) ? j : -1;
-}
-
 int lista_buscar(const lista* l, int cond(const void*))
 {
     assert(l != NULL);
@@ -128,20 +106,19 @@ int lista_buscar(const lista* l, int cond(const void*))
         return -1;
     int j = 0;
     const lista_nodo* curr = l->primero;
-    while((curr->siguiente != NULL) && !cond(curr->el.value))
+    while((curr->siguiente != NULL) && !cond(valor_nodo(curr)))
     {
         curr = curr->siguiente;
         j++;
     }
-    return cond(curr->el.value) ? j : -1;
+    return cond(valor_nodo(curr)) ? j : -1;
 }
 
-void lista_insertar_cabeza(lista* l, void* el)
+void lista_insertar_cabeza(lista* l, const void* el)
 {
     assert(l != NULL);
 
-    lista_nodo* nuevo = crear_nodo();
-    nuevo->el.value = el;
+    lista_nodo* nuevo = crear_nodo(l,el);
     nuevo->siguiente = l->primero;
 
     l->primero = nuevo;
@@ -149,12 +126,11 @@ void lista_insertar_cabeza(lista* l, void* el)
         l->ultimo = l->primero;
 }
 
-void lista_insertar_cola(lista* l, void* el)
+void lista_insertar_cola(lista* l, const void* el)
 {
     assert(l != NULL);
 
-    lista_nodo* nuevo = crear_nodo();
-    nuevo->el.value = el;
+    lista_nodo* nuevo = crear_nodo(l,el);
     nuevo->siguiente = NULL;
     if(l->primero != NULL)
     {
@@ -167,7 +143,7 @@ void lista_insertar_cola(lista* l, void* el)
     }
 }
 
-void lista_insertar(lista* l, int pos, void* el)
+void lista_insertar(lista* l, int pos, const void* el)
 {
     assert((l != NULL) && (pos >= 0) && !lista_vacia(l));
     if(pos == 0)
@@ -182,9 +158,8 @@ void lista_insertar(lista* l, int pos, void* el)
             i++;
         }
         assert(curr->siguiente != NULL);
-        lista_nodo* nuevo = crear_nodo();
+        lista_nodo* nuevo = crear_nodo(l,el);
         nuevo->siguiente = curr->siguiente;
-        nuevo->el.value = el;
 
         curr->siguiente = nuevo;
     }
@@ -253,7 +228,7 @@ void lista_recorrer(const lista* l, void accion(void*))
     lista_nodo* curr = l->primero;
     while(curr != NULL)
     {
-        accion(curr->el.value);
+        accion(valor_nodo(curr));
         curr = curr->siguiente;
     }
 }
@@ -269,12 +244,12 @@ void lista_mostrar(const lista* l, void to_string(const void*,char*), char separ
         while(curr->siguiente != NULL)
         {
             memset(el, 0, sizeof(el));
-            to_string(curr->el.value, el);
+            to_string(valor_nodo(curr), el);
             printf("%s%c", el, separador);
             curr = curr->siguiente;
         }
         memset(el, 0, sizeof(el));
-        to_string(curr->el.value, el);
+        to_string(valor_nodo(curr), el);
         printf("%s", el);
     }
 }

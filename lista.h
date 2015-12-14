@@ -13,25 +13,18 @@
 
 ////////// Estructuras de datos para almacenar una lista
 
-/* Define un elemento de la lista */
-typedef struct lista_elemento
-{
-    /* Otros */
-    void* value;
-
-} lista_elemento;
-
 /* Define el nodo de una lista */
 typedef struct lista_nodo
 {
     struct lista_nodo* siguiente;
-    lista_elemento el;
+    // lista_elemento el;
 } lista_nodo;
 
 /* Define la lista */
 typedef struct lista
 {
     lista_nodo* primero, *ultimo;
+    int bpel;
 } lista;
 
 
@@ -39,7 +32,7 @@ typedef struct lista
 
 
 /** Crea una lista vacía y la devuelve */
-lista* crear_lista();
+lista* crear_lista(int bpel);
 
 /** Elimina la lista y la memoria usada por esta */
 void liberar_lista(lista* l);
@@ -53,19 +46,11 @@ void* lista_cola(const lista* l);
 /** Devuelve el elemento en la posición i-esima. */
 void* lista_consultar(const lista* l, int i);
 
-/** Modifica el elemento en la posición i-esima */
-void lista_modificar(lista* l, int i, void* el);
-
 /** Devuelve el tamaño de la lista */
 int lista_len(const lista* l);
 
 /** Comprueba si una lista está vacía */
 int lista_vacia(const lista* l);
-
-/** Busca un elemento que contiene un valor específico en la lista.
-Si lo encuentra, devuelve la posición del primer elemento que tiene ese valor
-en la lista, o -1 si no se ha encontrado */
-int lista_buscar_val(const lista* l, const void* val);
 
 /** Busca un elemento que satisfaga una condición en la lista.
 Devuelve la posición del primer elemento que satisfaga la condición, o -1 si no
@@ -74,13 +59,13 @@ int lista_buscar(const lista* l, int(const void*));
 
 
 /** Inserta un elemento en la cabeza de la lista */
-void lista_insertar_cabeza(lista* l, void* el);
+void lista_insertar_cabeza(lista* l, const void* el);
 
 /** Inserta un elemento en la cola de la lista */
-void lista_insertar_cola(lista* l, void* el);
+void lista_insertar_cola(lista* l, const void* el);
 
 /** Inserta un elemento en una posición de la lista */
-void lista_insertar(lista* l, int pos, void* el);
+void lista_insertar(lista* l, int pos, const void* el);
 
 /** Elimina la cabeza de la lista */
 void lista_eliminar_cabeza(lista* l);
