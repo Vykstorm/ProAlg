@@ -264,21 +264,5 @@ void liberar_elementos(void* valor)
     free(valor);
 }
 
-int contador = 0;
-void* crear_entero()
-{
-    void* el = malloc(sizeof(int));
-    *((int*)el) = contador++;
-    return el;
-}
 
-void modificar_entero(void* el, int val)
-{
-    *((int*)el) = val;
-}
-
-int ver_entero(const void* el)
-{
-    return *((int*)el);
-}
 
