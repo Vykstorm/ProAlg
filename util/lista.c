@@ -8,9 +8,9 @@
 ////////// Implementación de lista
 
 
-lista* crear_lista(int bpel)
+lista crear_lista(int bpel)
 {
-    lista* l = (lista*)malloc(sizeof(lista));
+    lista l = (lista)malloc(sizeof(lista));
     l->primero = NULL;
     l->bpel = bpel;
     return l;
@@ -21,7 +21,7 @@ void* valor_nodo(const lista_nodo* n)
 	return (void*)((char*)n + sizeof(lista_nodo));
 }
 
-lista_nodo* crear_nodo(const lista* l, const void* el)
+lista_nodo* crear_nodo(const lista l, const void* el)
 {
     lista_nodo* n = (lista_nodo*)malloc(sizeof(lista_nodo) + l->bpel);
     memcpy(valor_nodo(n), el, l->bpel);
@@ -33,7 +33,7 @@ void liberar_nodo(lista_nodo* n)
     free((void*)n);
 }
 
-void liberar_lista(lista* l)
+void liberar_lista(lista l)
 {
     assert(l != NULL);
     if(!lista_vacia(l))
@@ -51,25 +51,25 @@ void liberar_lista(lista* l)
     free((void*)l);
 }
 
-void* lista_cabeza(const lista* l)
+void* lista_cabeza(const lista l)
 {
     assert((l != NULL) && !lista_vacia(l));
     return valor_nodo(l->primero);
 }
 
-void* lista_cola(const lista* l)
+void* lista_cola(const lista l)
 {
     assert((l != NULL) && !lista_vacia(l));
     return valor_nodo(l->ultimo);
 }
 
-int lista_vacia(const lista* l)
+int lista_vacia(const lista l)
 {
     assert(l != NULL);
     return l->primero == NULL;
 }
 
-void* lista_consultar(const lista* l, int i)
+void* lista_consultar(const lista l, int i)
 {
     assert((l != NULL) && (i >= 0) && !lista_vacia(l));
 
@@ -85,7 +85,7 @@ void* lista_consultar(const lista* l, int i)
 }
 
 
-int lista_len(const lista* l)
+int lista_len(const lista l)
 {
     assert(l != NULL);
     int len = 0;
@@ -98,7 +98,7 @@ int lista_len(const lista* l)
     return len;
 }
 
-int lista_buscar(const lista* l, int cond(const void*))
+int lista_buscar(const lista l, int cond(const void*))
 {
     assert(l != NULL);
 
@@ -114,7 +114,7 @@ int lista_buscar(const lista* l, int cond(const void*))
     return cond(valor_nodo(curr)) ? j : -1;
 }
 
-void lista_insertar_cabeza(lista* l, const void* el)
+void lista_insertar_cabeza(lista l, const void* el)
 {
     assert(l != NULL);
 
@@ -126,7 +126,7 @@ void lista_insertar_cabeza(lista* l, const void* el)
         l->ultimo = l->primero;
 }
 
-void lista_insertar_cola(lista* l, const void* el)
+void lista_insertar_cola(lista l, const void* el)
 {
     assert(l != NULL);
 
@@ -143,7 +143,7 @@ void lista_insertar_cola(lista* l, const void* el)
     }
 }
 
-void lista_insertar(lista* l, int pos, const void* el)
+void lista_insertar(lista l, int pos, const void* el)
 {
     assert((l != NULL) && (pos >= 0) && !lista_vacia(l));
     if(pos == 0)
@@ -165,7 +165,7 @@ void lista_insertar(lista* l, int pos, const void* el)
     }
 }
 
-void lista_eliminar_cabeza(lista* l)
+void lista_eliminar_cabeza(lista l)
 {
     assert((l != NULL) && !lista_vacia(l));
 
@@ -174,7 +174,7 @@ void lista_eliminar_cabeza(lista* l)
     liberar_nodo(primero);
 }
 
-void lista_eliminar_cola(lista* l)
+void lista_eliminar_cola(lista l)
 {
     assert((l != NULL) && !lista_vacia(l));
     if(l->primero->siguiente == NULL)
@@ -197,7 +197,7 @@ void lista_eliminar_cola(lista* l)
     }
 }
 
-void lista_eliminar(lista* l, int pos)
+void lista_eliminar(lista l, int pos)
 {
     assert((l != NULL) && (pos >= 0) && !lista_vacia(l));
     if(pos == 0)
@@ -221,7 +221,7 @@ void lista_eliminar(lista* l, int pos)
 }
 
 
-void lista_recorrer(const lista* l, void accion(void*))
+void lista_recorrer(const lista l, void accion(void*))
 {
     assert(l != NULL);
 
@@ -233,7 +233,7 @@ void lista_recorrer(const lista* l, void accion(void*))
     }
 }
 
-void lista_mostrar(const lista* l, void to_string(const void*,char*), char separador)
+void lista_mostrar(const lista l, void to_string(const void*,char*), char separador)
 {
     assert(l != NULL);
 
