@@ -30,7 +30,7 @@ parser_debug.y: parser.y
 	cat parser_debug2.y | grep -n '%%' | head -n 1 | sed 's/\([0-9]*\):%%/+\1/g' | xargs tail parser_debug2.y -n | tail -n +2 |  sed 's/T_\([a-zA-Z_]*\)/Tr_\1/g' >> parser_debug.y && 	rm -f parser_debug2.y
 	cat parser.y | grep %token | sed 's/%token[ ]*T_\([a-zA-Z_]*\)/T_\1/g' | sed 's/%token[ ]*<[^>]*>[ ]*T_\([a-zA-Z_]*\)/T_\1/g' | sed 's/T_\([A-Za-z_]*\)/Tr_\1:\n\tT_\1 { printf(\"shift: %s\\n\", \"T_\1\"); }/g' >> parser_debug.y 	
 	cat parser.y | grep -n '%%' | tail -n 1 | sed 's/\([0-9]*\):%%/+\1/g' | xargs tail parser.y -n >> parser_debug.y
-	
+	sed -i.bak 's/%token[ ]*<\([^>]*\)>[ ]*T_\(.*\)/%token <\1> T_\2\n%type <\1> Tr_\2/g' parser_debug.y && rm -f parser_debug.y.bak
 	
 parser.c: $(parser)
 	bison --defines=parser.tab.h -o $@ $<
