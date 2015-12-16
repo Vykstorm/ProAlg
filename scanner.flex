@@ -12,7 +12,8 @@
  /* Necesaria la inclusión de esta cabecera para que los tokens (definidos
   * por bison), puedan sean visibles para flex)
   */
-#include "parser.tab.h"						
+#include "parser.tab.h"	
+#include "tabla_simbolos.h"					
 #include <stdio.h>
 
 
@@ -144,11 +145,11 @@ comentario \{([^\}]|\/\})*\}
 
 	/* Reglas para palabras reservadas */
 {r_accion} { return T_accion; }
-{r_real} {strcpy(yylval.C_tipo_base,"real"); return T_tipo_base;}
-{r_entero} {strcpy(yylval.C_tipo_base,"entero"); return T_tipo_base;}
-{r_caracter} {strcpy(yylval.C_tipo_base,"caracter"); return T_tipo_base;}
-{r_booleano} {strcpy(yylval.C_tipo_base,"booleano"); return T_tipo_base;}
-{r_string} {strcpy(yylval.C_tipo_base,"string"); return T_tipo_base;}
+{r_real} { yylval.C_tipo_base = TS_REAL; return T_tipo_base;}
+{r_entero} {yylval.C_tipo_base = TS_ENTERO; return T_tipo_base;}
+{r_caracter} { yylval.C_tipo_base = TS_CARACTER; return T_tipo_base;}
+{r_booleano} { yylval.C_tipo_base = TS_BOOLEANO; return T_tipo_base;}
+{r_string} {  yylval.C_tipo_base = TS_STRING; return T_tipo_base;}
 {r_ref} {return T_ref;}
 {r_de} {return T_de;}
 {r_algoritmo} { return T_algoritmo; }
