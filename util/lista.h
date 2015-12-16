@@ -81,7 +81,7 @@ void lista_eliminar(lista l, int pos);
 
 
 /** LLeva a cabo una acción para cada elemento de la lista */
-void lista_recorrer(const lista l, void(void*));
+void lista_recorrer(const lista l, void(const void*));
 
 /** Muestra la lista por pantalla */
 void lista_mostrar(const lista l, void(const void*,char*), char separador);

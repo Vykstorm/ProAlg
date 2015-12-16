@@ -221,7 +221,7 @@ void lista_eliminar(lista l, int pos)
 }
 
 
-void lista_recorrer(const lista l, void accion(void*))
+void lista_recorrer(const lista l, void accion(const void*))
 {
     assert(l != NULL);
 
