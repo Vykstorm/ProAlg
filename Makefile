@@ -20,6 +20,8 @@ else
 	parser = parser.y
 endif
 
+modulos = tabla_simbolos.c traducciones.c $(shell find util -name "*.c")
+
 all: proalg
 
 parser_debug.y: parser.y
@@ -39,7 +41,7 @@ scanner_debug.flex: scanner.flex
 scanner.c: $(scanner)
 	flex -o $@ $<
 	
-proalg: parser.c scanner.c
+proalg: parser.c scanner.c $(modulos)
 	gcc -o $@ $^ -lfl 
 	
 	
