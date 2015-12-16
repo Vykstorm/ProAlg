@@ -27,25 +27,27 @@ enum TS_tipo_dato
     TS_TABLA = 1<<8,
     TS_TUPLA = 2<<8,
     TS_PUNTERO = 3<<8,
-    TS_ENTERO = 4<<8,
-    TS_REAL = 5<<8,
-    TS_BOOLEANO = 6<<8,
-    TS_CARACTER = 7<<8,
-    TS_STRING = 8<<8
+    TS_ENTERO = 4<<8 | 1<<15,
+    TS_REAL = 5<<8 | 1<<15, 
+    TS_BOOLEANO = 6<<8 | 1<<15,
+    TS_CARACTER = 7<<8 | 1<<15,
+    TS_STRING = 8<<8 | 1<<15
 };
 
 /* Se usa para indicar que un campo se desconoce */
-#define ST_DESCONOCIDO 0
+#define TS_UNKNOWN 0
 
 
 ///////// DEFINICIÓN DE ESTRUCTURAS DE DATOS
 
 
+
+
 typedef struct TS_simbolo
 {
-    int tipo; /* el tipo tendrá el valor ST_DESCONOCIDO si no se sabe que tipo de símbolo es */
-    int id;
-    const char* nombre;
+    int tipo; /* el tipo tendrá el valor TS_UNKNOWN si no se sabe que tipo de símbolo es */
+    int id; /* la dirección del símbolo */
+    char nombre[128];
     void* registro; /* es un apuntador a otra estructura que contiene información adicional para este símbolo.
         la estructura apuntada dependerá del tipo de símbolo */
 
@@ -79,7 +81,7 @@ typedef struct TS_puntero
 typedef struct TS_tipo
 {
     int tipo; /* tipo de dato: puede ser un tipo de dato básico o estructurado. Si es un tipo estructurado, se podrá
-    acceder a información adicional sobre este, usando el campo adecuado en la unión. Tiene el valor ST_DESCONOCIDO si
+    acceder a información adicional sobre este, usando el campo adecuado en la unión. Tiene el valor  TS_UNKNOWN si
     se desconoce que tipo de dato es este. */
     union
     {
@@ -140,7 +142,12 @@ void TS_liberar();
 
 
 /// Consultas y búsquedas en la tabla de símbolos
-
+/**
+ * @return Devuelve información sobre el tipo de símbolo
+ * if(TS_consultar_tipo(id) & TS_VAR) -> variable
+ * if((TS_consultar_tipo(id) & TS_VAR) && (TS_consultar_tipo(id) & TS_TUPLA)) -> variable cuyo tipo es una tupla
+ */
+int TS_consultar_tipo(int id);
 
 
 /// Insercciones y eliminaciones en la tabla de símbolos.
@@ -152,8 +159,10 @@ void TS_liberar();
 	El símbolo se inserta en la TS si aún no se ha insertado,
 	después de una invocación a la función TS_set(). En caso contrario,
 	el símbolo ya esta insertado en la TS y no se hace nada.
+	@return Devuelve la id asociada al nuevo simbolo creado, o la 
+	del símbolo ya existente con ese nombre 
 */
-void TS_intertar_simbolo(const char* nombre);
+int TS_intertar_simbolo(const char* nombre);
 
 /// Modificaciones en la tabla de símbolos
 
@@ -170,27 +179,14 @@ void TS_intertar_simbolo(const char* nombre);
     TS_CTE | TS_REAL -> cte de tipo real
     ...
 */
-void TS_modificar_tipo(const char* nombre, int tipo);
+void TS_modificar_tipo(int id, int tipo);
 
 
 /**
-    Crea una nueva subtabla dentro de la tabla de símbolos. Los nuevos símbolos que se
-    inserten en la TS, se guardarán en esa subtabla. La idea es que en una misma subtabla,
-    estén todos los símbolos que se hayan declarado en un mismo ámbito.
-    Además, al buscar un símbolo en la TS, se comenzará a buscar primero por las subtablas que
-    se hayan creado más recientemente.
-
-    @note Debe invocarse este método cada vez que se lee un código que cree un nuevo ámbito
-    de declaración de variables. Por ejemplo, al leer la cabecera de una acción o función.
-*/
-void TS_set();
-
-/**
-    Elimina la subtabla creada más recientemente, junto con los símbolos que hay en ella almacenados.
-    @note Este método debe invocarse cuando se lee código que cierre un ámbito de delcaración de variables.
-    @note Debe invocarse antes de cualquier llamada a esta función, TS_set()
-*/
-void TS_reset();
+ * Crea una nueva variable temporal en la tabla de símbolos.
+ * @return Devuelve la id de la nueva variable temporal.
+ */
+int TS_newtempvar();
 
 
 #endif
