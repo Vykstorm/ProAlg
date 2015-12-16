@@ -123,9 +123,3 @@ void gen_ptr_asig_deref(int y, int x)
 {
 	gen_asig_unaria(TR_OP_ASIG_DEREF, y, x);
 }
-
-
-int main(int argc, char** argv)
-{
-	
-}
