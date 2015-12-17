@@ -48,9 +48,7 @@ int TS_insertar_simbolo(const char* nombre)
 }
 
 void TS_modificar_tipo(int id, int tipo)
-{
-	printf("modificando tipo: %d, %d\n", id, tipo);
-	
+{	
 	/* Buscar símbolo por ID */
 	TS_simbolo* sim;
 	sim = TS_buscar_simbolo(id);
@@ -73,6 +71,103 @@ int TS_newtemp()
 }
 
 
+
+void info_tipo(char* str, int tipo)
+{
+	switch(tipo)
+	{
+		case TS_TABLA:
+			strcpy(str, "tabla");
+		break;
+		case TS_TUPLA:
+			strcpy(str, "tupla");
+		break;
+		case TS_PUNTERO:
+			strcpy(str, "puntero");
+		break;
+		case TS_ENTERO:
+			strcpy(str, "entero");
+		break;
+		case TS_REAL:
+			strcpy(str, "real");
+		break;
+		case TS_BOOLEANO:
+			strcpy(str, "booleano");
+		break;
+		case TS_CARACTER:
+			strcpy(str, "caracter");
+		break;
+		case TS_STRING:
+		break;
+	}
+}
+
+
+
+void mostrar_simbolo(const void* s)
+{
+	TS_simbolo* sim =(TS_simbolo*)s;
+	char tipo[128];
+	switch(sim->tipo)
+	{
+		case TS_ACCION:
+		strcpy(tipo, "accion");
+		break;
+		case TS_FUNCION:
+		strcpy(tipo, "funcion");
+		break;
+		case TS_CTE:
+		{
+			TS_cte* cte = (TS_cte*)sim->registro;
+			if(cte->tipo != TS_UNKNOWN)
+			{
+				char tipo_cte[64];
+				info_tipo(tipo_cte, cte->tipo);
+				sprintf(tipo, "constante de tipo %s", tipo_cte);
+			}
+			else 
+				strcpy(tipo, "constante");
+		}
+		break;
+		case TS_VAR:
+		{
+			TS_tipo* var_t = ((TS_var*)sim->registro)->tipo;
+			if(var_t->tipo != TS_UNKNOWN)
+			{
+				char tipo_var[64];
+				info_tipo(tipo_var, var_t->tipo);
+				sprintf(tipo, "variable de tipo %s", tipo_var);
+			}
+			else
+				strcpy(tipo, "variable");
+		}
+		break;
+		case TS_TIPO:
+		{
+			TS_tipo* tipo_t = (TS_tipo*)sim->registro;
+			if(tipo_t->tipo != TS_UNKNOWN)
+				info_tipo(tipo, tipo_t->tipo);
+			else
+				strcpy(tipo, "tipo");
+		}
+		break;
+		case TS_UNKNOWN:
+			sprintf(tipo, "---");
+		break;
+	}
+	printf("%5d %10s %25s\n", sim->id, sim->nombre, tipo);
+}
+
+void TS_printdebug()
+{
+	puts("---------------------------");
+	printf("nº simbolos: %d\n", lista_len(simbolos));
+	printf("%5s %10s %25s\n", "ID", "NOMBRE", "TIPO");
+	lista_recorrer(simbolos, mostrar_simbolo);
+	puts("---------------------------");
+}
+
+
 ////// Implementación de los métodos auxiliares
 void TS_eliminar_registro(TS_simbolo* sim)
 {
@@ -81,6 +176,7 @@ void TS_eliminar_registro(TS_simbolo* sim)
 		case TS_CTE:
 		case TS_FUNCION:
 		case TS_ACCION:
+		case TS_TIPO:
 		{
 			free((void*)sim->registro);
 		}
@@ -88,12 +184,6 @@ void TS_eliminar_registro(TS_simbolo* sim)
 		case TS_VAR:
 		{
 			free((void*)(((TS_var*)sim->registro)->tipo));
-			free((void*)sim->registro);
-		}
-		break;
-		case TS_PUNTERO:
-		{ 
-			free((void*)(((TS_puntero*)sim->registro)->tipo_apuntado));
 			free((void*)sim->registro);
 		}
 		break;
@@ -136,15 +226,6 @@ void TS_modificar_registro(TS_simbolo* sim, int tipo)
 				
 				var->tipo = var_t;
 				sim->registro = (void*)var;
-			}
-			break;
-			case TS_PUNTERO:
-			{
-				TS_puntero* ptr = (TS_puntero*)malloc(sizeof(TS_puntero));
-				TS_tipo* ptr_t = (TS_tipo*)malloc(sizeof(TS_tipo));
-				ptr_t->tipo = tipo & 0xFF00;
-				ptr->tipo_apuntado = ptr_t;
-				sim->registro = (void*)ptr;
 			}
 			break;
 			case TS_TIPO:

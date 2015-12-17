@@ -188,6 +188,10 @@ void TS_modificar_tipo(int id, int tipo);
  */
 int TS_newtempvar();
 
+/**
+ * Imprime información en la salida estándar de la tabla de símbolos 
+ */
+void TS_printdebug();
 
 #endif
 
