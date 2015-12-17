@@ -8,7 +8,14 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include "tabla_simbolos.h"
+
 %}
+
+%code requires
+{
+	#include "util/pila.h"
+}
 
 /* Definición de yystype. Contiene los campos con los que podemos suministrar
  * información de los tokens leídos desde flex
@@ -20,8 +27,10 @@
 	char C_literal_caracter[3];
 	char C_literal_string[256];
 	int C_literal_booleano; 
-	char C_tipo_base[16];
+	int C_tipo_base;
 	char C_oprel[3];
+	
+	pila C_lista_id;
 }
 
 /* Asociamos identificadores de tokens de bison a campos de yystype */
@@ -93,6 +102,13 @@
 
 %token <C_tipo_base> T_tipo_base
 
+
+
+/* Asociamos no terminales a campos de la unión */
+%type <C_lista_id> lista_id
+%type <C_tipo_base> d_tipo
+
+/* Indicamos la asociatividad y prioridad de los operadores */
 %left T_o
 %left T_y
 %right T_no
@@ -114,7 +130,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	desc_algoritmo
+	lista_de_var
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -229,12 +245,12 @@ lista_de_tipo:
 	|
 
 d_tipo:
-	T_tupla lista_campos T_ftupla 
-	| T_tabla T_inic_array expresion_t T_subrango expresion_t T_fin_array T_de d_tipo { }
-	| T_id
+	T_tupla lista_campos T_ftupla { $$ = TS_TUPLA; }
+	| T_tabla T_inic_array expresion_t T_subrango expresion_t T_fin_array T_de d_tipo { $$ = TS_TABLA; }
+	| T_id { }
 	|  expresion_t T_subrango expresion_t
-	| T_ref d_tipo 
-	| T_tipo_base { }	
+	| T_ref d_tipo { $$ = TS_PUNTERO; }
+	| T_tipo_base { $$ = $1; }	
 
 expresion_t:
 	expresion 
@@ -259,14 +275,11 @@ literal:
 	| T_literal_string {}
 
 lista_de_var:
-	lista_id T_def_tipo_variable T_id T_comp_secuencial lista_de_var
-	| lista_id T_def_tipo_variable d_tipo T_comp_secuencial lista_de_var
-	|
+	| lista_id T_def_tipo_variable d_tipo T_comp_secuencial { while(!pila_vacia($1)) { TS_modificar_tipo(desapilar($1), TS_VAR | $3); } } 
 	
 lista_id:
-	T_id T_separador lista_id 
-	| T_id
-	| 
+	T_id T_separador lista_id { apilar($3, TS_insertar_simbolo($1)); $$ = $3; }
+	| T_id { $$ = crear_pila(); apilar($$, TS_insertar_simbolo($1)); }
 
 decl_ent_sal: 
 	decl_ent
@@ -312,6 +325,7 @@ l_ll:
 	|
 
 %%
+
 	/* Definición de procedimientos auxiliares */
 int yyerror(const char* s) /* Error de parseo */
 {
@@ -320,6 +334,9 @@ int yyerror(const char* s) /* Error de parseo */
 /* Rutina principal */
 int main(int argc,char ** argv)
 {
+	TS_inicializar();
 	yyparse();
+	TS_printdebug();
+	TS_liberar();
 }
 
