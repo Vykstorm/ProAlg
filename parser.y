@@ -8,6 +8,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "tabla_simbolos.h"
 
 %}
@@ -15,6 +16,14 @@
 %code requires
 {
 	#include "util/pila.h"
+	#include "tabla_simbolos.h"
+	
+	/* estructura auxiliar para valores semánticos de ctes */
+	typedef struct C_cte_t
+	{
+		int tipo;  /* tipo de cte */
+		TS_cte_val val; /* el valor de la cte */
+	} C_cte_t;
 }
 
 /* Definición de yystype. Contiene los campos con los que podemos suministrar
@@ -24,13 +33,14 @@
 	char C_id[128];	
 	int C_literal_entero;
 	float C_literal_real;
-	char C_literal_caracter[3];
+	char C_literal_caracter;
 	char C_literal_string[256];
 	int C_literal_booleano; 
 	int C_tipo_base;
 	char C_oprel[3];
 	
 	pila C_lista_id;
+	C_cte_t C_cte;
 }
 
 /* Asociamos identificadores de tokens de bison a campos de yystype */
@@ -107,6 +117,10 @@
 /* Asociamos no terminales a campos de la unión */
 %type <C_lista_id> lista_id
 %type <C_tipo_base> d_tipo
+%type <C_cte> literal
+%type <C_cte> constante
+
+
 
 /* Indicamos la asociatividad y prioridad de los operadores */
 %left T_o
@@ -130,7 +144,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	lista_de_var
+	declaracion_cte
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -247,8 +261,8 @@ lista_de_tipo:
 d_tipo:
 	T_tupla lista_campos T_ftupla { $$ = TS_TUPLA; }
 	| T_tabla T_inic_array expresion_t T_subrango expresion_t T_fin_array T_de d_tipo { $$ = TS_TABLA; }
-	| T_id { }
-	|  expresion_t T_subrango expresion_t
+	| T_id { $$ = TS_UNKNOWN; } 
+	|  expresion_t T_subrango expresion_t { $$ = TS_UNKNOWN; }
 	| T_ref d_tipo { $$ = TS_PUNTERO; }
 	| T_tipo_base { $$ = $1; }	
 
@@ -262,21 +276,22 @@ lista_campos:
 
 /* Declaración de constantes y variables */
 lista_de_cte:
-	T_id T_creacion_tipo constante T_comp_secuencial lista_de_cte
+	T_id T_creacion_tipo constante T_comp_secuencial lista_de_cte { int id=TS_insertar_simbolo($1); TS_modificar_tipo(id, TS_CTE | $3.tipo); TS_modificar_cte(id,$3.val); }
 	|
 
 constante:
-	literal
-	| T_literal_booleano {}
+	literal { $$ = $1; } 
+	| T_literal_booleano { $$.tipo = TS_BOOLEANO; $$.val.booleano = $1; }
 literal:
-	T_literal_entero {}
-	| T_literal_real {}
-	| T_literal_caracter {}
-	| T_literal_string {}
+	T_literal_entero { $$.tipo = TS_ENTERO; $$.val.entero = $1;  }
+	| T_literal_real { $$.tipo = TS_REAL; $$.val.real = $1; }
+	| T_literal_caracter { $$.tipo = TS_CARACTER; $$.val.caracter = $1; }
+	| T_literal_string { $$.tipo = TS_STRING; strcpy($$.val.string, $1); }
 
 lista_de_var:
-	| lista_id T_def_tipo_variable d_tipo T_comp_secuencial { while(!pila_vacia($1)) { TS_modificar_tipo(desapilar($1), TS_VAR | $3); } } 
-	
+	lista_id T_def_tipo_variable T_id T_comp_secuencial lista_de_var { while(!pila_vacia($1)) { TS_vincular_tipo(desapilar($1), $3); } }
+	| lista_id T_def_tipo_variable d_tipo T_comp_secuencial lista_de_var { while(!pila_vacia($1)) { TS_modificar_tipo(desapilar($1), TS_VAR | $3); } } 
+	|
 lista_id:
 	T_id T_separador lista_id { apilar($3, TS_insertar_simbolo($1)); $$ = $3; }
 	| T_id { $$ = crear_pila(); apilar($$, TS_insertar_simbolo($1)); }
