@@ -28,17 +28,19 @@ typedef enum TR_operador
 	
 	/* aritmética */
 	TR_OP_SUMA = 0x0010 | 1<<15,			  
-	TR_OP_RESTA,
-	TR_OP_MULT,
-	TR_OP_DIV,
-	TR_OP_SHIFT_LEFT,	   /* operacion para move bits hacia la izquierda. Es equivalente a multiplicar por potencias 2 */
-	TR_OP_SHIFT_RIGHT,	   /* igual que la anterior, pero a la derecha. Igual que dividir por potencias de 2 */
+	TR_OP_RESTA = 0x0011 | 1<<15,
+	TR_OP_MULT = 0x0012 | 1<<15,
+	TR_OP_DIV = 0x0013 | 1<<15,
+	TR_OP_SHIFT_LEFT = 0x0014 | 1<<15,	   /* operacion para move bits hacia la izquierda. Es equivalente a multiplicar por potencias 2 */
+	TR_OP_SHIFT_RIGHT = 0x0015 | 1<<15,	   /* igual que la anterior, pero a la derecha. Igual que dividir por potencias de 2 */
+	TR_OP_NEG = 0x0016,
 
 	/* aritmética en coma flotante */
 	TR_OP_SUMA_REAL = 0x0020 | 1<<15,
-	TR_OP_RESTA_REAL,
-	TR_OP_MULT_REAL,
-	TR_OP_DIV_REAL,
+	TR_OP_RESTA_REAL = 0x0021 | 1<<15,
+	TR_OP_MULT_REAL = 0x0022 | 1<<15,
+	TR_OP_DIV_REAL = 0x0023 | 1<<15,
+	TR_OP_NEG_REAL = 0x0024,
 	
 	/* operadores lógicos */
 	TR_OP_AND = 0x0030 | 1<<15,
