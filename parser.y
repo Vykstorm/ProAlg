@@ -276,7 +276,7 @@ lista_campos:
 
 /* Declaración de constantes y variables */
 lista_de_cte:
-	T_id T_creacion_tipo constante T_comp_secuencial lista_de_cte { int id=TS_insertar_simbolo($1); TS_modificar_tipo(id, TS_CTE | $3.tipo); TS_modificar_cte(id,$3.val); }
+	T_id T_creacion_tipo constante T_comp_secuencial lista_de_cte { int id=TS_insertar_simbolo($1); TS_modificar_simbolo(id, TS_CTE | $3.tipo); TS_modificar_cte(id,$3.val); }
 	|
 
 constante:
@@ -290,7 +290,7 @@ literal:
 
 lista_de_var:
 	lista_id T_def_tipo_variable T_id T_comp_secuencial lista_de_var { while(!pila_vacia($1)) { TS_vincular_tipo(desapilar($1), $3); } }
-	| lista_id T_def_tipo_variable d_tipo T_comp_secuencial lista_de_var { while(!pila_vacia($1)) { TS_modificar_tipo(desapilar($1), TS_VAR | $3); } } 
+	| lista_id T_def_tipo_variable d_tipo T_comp_secuencial lista_de_var { while(!pila_vacia($1)) { TS_modificar_simbolo(desapilar($1), TS_VAR | $3); } } 
 	|
 lista_id:
 	T_id T_separador lista_id { apilar($3, TS_insertar_simbolo($1)); $$ = $3; }

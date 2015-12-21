@@ -184,7 +184,7 @@ int TS_intertar_simbolo(const char* nombre);
     TS_CTE | TS_REAL -> cte de tipo real
     ...
 */
-void TS_modificar_tipo(int id, int tipo);
+void TS_modificar_simbolo(int id, int tipo);
 
 
 /**

@@ -48,7 +48,7 @@ int TS_insertar_simbolo(const char* nombre)
 	return sim.id;
 }
 
-void TS_modificar_tipo(int id, int tipo)
+void TS_modificar_simbolo(int id, int tipo)
 {	
 	/* Buscar símbolo por ID */
 	TS_simbolo* sim;
