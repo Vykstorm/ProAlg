@@ -202,11 +202,19 @@ void TS_modificar_cte(int id, TS_cte_val val);
  */
 void TS_modificar_var(int id_var, const char* nombre_tipo);
 
+
+
 /**
  * Crea una nueva variable temporal en la tabla de símbolos.
  * @return Devuelve la id de la nueva variable temporal.
  */
 int TS_newtempvar();
+
+/**
+ * Busca un símbolo por nombre.
+ * @return Devuelve -1 si no hay ningún símbolo con ese nombre, o la id del símbolo si existe.
+ */
+int TS_buscar_simbolo(const char* nombre);
 
 /**
  * Imprime información en la salida estándar de la tabla de símbolos 

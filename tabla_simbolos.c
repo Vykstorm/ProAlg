@@ -12,7 +12,7 @@ int TS_contador_id = 1;
 void 	TS_modificar_registro(TS_simbolo* sim, int tipo);
 void 	TS_eliminar_registro(TS_simbolo* sim);
 void 	TS_eliminar_simbolo(TS_simbolo* sim);
-TS_simbolo* TS_buscar_simbolo(int id);
+TS_simbolo* TS_buscar_simbolo_por_id(int id);
 TS_simbolo* TS_buscar_simbolo_por_nombre(const char* nombre);
 
 ///// Implementación de los métodos de la interfaz
@@ -52,7 +52,7 @@ void TS_modificar_simbolo(int id, int tipo)
 {	
 	/* Buscar símbolo por ID */
 	TS_simbolo* sim;
-	sim = TS_buscar_simbolo(id);
+	sim = TS_buscar_simbolo_por_id(id);
 	assert(sim != NULL);
 	
 	/* Modificamos el tipo de símbolo */
@@ -63,7 +63,7 @@ void TS_modificar_cte(int id, TS_cte_val val)
 {
 	/* Buscamos el símbolo por ID y comprobamos si es una cte */
 	TS_simbolo* sim;
-	sim = TS_buscar_simbolo(id);
+	sim = TS_buscar_simbolo_por_id(id);
 	assert((sim != NULL) && (sim->tipo == TS_CTE));
 	TS_cte* cte = (TS_cte*)sim->registro;
 	switch(cte->tipo)
@@ -89,12 +89,42 @@ void TS_modificar_cte(int id, TS_cte_val val)
 void TS_modificar_var(int id_var, const char* nombre_tipo)
 {
 	TS_simbolo *sim_var, *sim_tipo;
-	sim_var=TS_buscar_simbolo(id_var);
+	sim_var=TS_buscar_simbolo_por_id(id_var);
 	sim_tipo=TS_buscar_simbolo_por_nombre(nombre_tipo);
 	assert((sim_var != NULL) && (sim_tipo != NULL) && (sim_var->tipo == TS_VAR) && (sim_tipo->tipo == TS_TIPO));
 	
 	/* Modificamos la variable */
 	((TS_var*)sim_var->registro)->tipo = (TS_tipo*)sim_tipo->registro;
+}
+
+int TS_buscar_simbolo(const char* nombre)
+{
+	TS_simbolo* sim = TS_buscar_simbolo_por_nombre(nombre);
+	return (sim != NULL) ? sim->id : -1;
+}
+
+int TS_consultar_tipo(int id)
+{
+	TS_simbolo* sim;
+	sim = TS_buscar_simbolo_por_id(id);
+	assert(sim != NULL);
+	
+	int tipo = 0;
+	tipo |= sim->tipo;
+	switch(sim->tipo)
+	{
+		case TS_VAR:
+			tipo |= (((TS_var*)sim->registro)->tipo)->tipo; 
+		break;
+		case TS_CTE:
+			tipo |= ((TS_cte*)sim->registro)->tipo;
+		break;
+		case TS_TIPO:
+			tipo |= ((TS_tipo*)sim->registro)->tipo;
+		break;
+	}
+	
+	return tipo;
 }
 
 int TS_newtemp()
@@ -308,7 +338,7 @@ void TS_eliminar_simbolo(TS_simbolo* sim)
 	TS_eliminar_registro(sim);
 }
 
-TS_simbolo* TS_buscar_simbolo(int id)
+TS_simbolo* TS_buscar_simbolo_por_id(int id)
 {
 	int busqueda(const void* sim) { return ((TS_simbolo*)sim)->id == id; }
 	int i;
