@@ -13,6 +13,7 @@ void 	TS_modificar_registro(TS_simbolo* sim, int tipo);
 void 	TS_eliminar_registro(TS_simbolo* sim);
 void 	TS_eliminar_simbolo(TS_simbolo* sim);
 TS_simbolo* TS_buscar_simbolo(int id);
+TS_simbolo* TS_buscar_simbolo_por_nombre(const char* nombre);
 
 ///// Implementación de los métodos de la interfaz
 void TS_inicializar()
@@ -58,6 +59,44 @@ void TS_modificar_tipo(int id, int tipo)
 	TS_modificar_registro(sim,tipo);
 }
 
+void TS_modificar_cte(int id, TS_cte_val val)
+{
+	/* Buscamos el símbolo por ID y comprobamos si es una cte */
+	TS_simbolo* sim;
+	sim = TS_buscar_simbolo(id);
+	assert((sim != NULL) && (sim->tipo == TS_CTE));
+	TS_cte* cte = (TS_cte*)sim->registro;
+	switch(cte->tipo)
+	{
+		case TS_ENTERO:
+			cte->val.entero = val.entero;
+		break;
+		case TS_REAL:
+			cte->val.real = val.real;
+		break;
+		case TS_BOOLEANO:
+			cte->val.booleano = val.booleano;
+		break;
+		case TS_CARACTER:
+			cte->val.caracter = val.caracter;
+		break;
+		case TS_STRING:
+			strcpy(cte->val.string, val.string);
+		break;
+	}
+}
+
+void TS_vincular_tipo(int id_var, const char* nombre_tipo)
+{
+	TS_simbolo *sim_var, *sim_tipo;
+	sim_var=TS_buscar_simbolo(id_var);
+	sim_tipo=TS_buscar_simbolo_por_nombre(nombre_tipo);
+	assert((sim_var != NULL) && (sim_tipo != NULL) && (sim_var->tipo == TS_VAR) && (sim_tipo->tipo == TS_TIPO));
+	
+	/* Modificamos la variable */
+	((TS_var*)sim_var->registro)->tipo = (TS_tipo*)sim_tipo->registro;
+}
+
 int TS_newtemp()
 {
 	/* creamos el símbolo */
@@ -98,6 +137,7 @@ void info_tipo(char* str, int tipo)
 			strcpy(str, "caracter");
 		break;
 		case TS_STRING:
+			strcpy(str, "string");
 		break;
 	}
 }
@@ -122,8 +162,27 @@ void mostrar_simbolo(const void* s)
 			if(cte->tipo != TS_UNKNOWN)
 			{
 				char tipo_cte[64];
+				char valor_cte[256];
 				info_tipo(tipo_cte, cte->tipo);
-				sprintf(tipo, "constante de tipo %s", tipo_cte);
+				switch(cte->tipo)
+				{
+					case TS_ENTERO:
+						sprintf(valor_cte, "%d", cte->val.entero);
+					break;
+					case TS_REAL:
+						sprintf(valor_cte, "%.2f", cte->val.real);
+					break;
+					case TS_BOOLEANO:
+						strcpy(valor_cte, cte->val.booleano ? "verdadero" : "falso");
+					break;
+					case TS_CARACTER:
+						sprintf(valor_cte, "%c", cte->val.caracter);
+					break;
+					case TS_STRING:
+						strcpy(valor_cte, cte->val.string); 
+					break;
+				}
+				sprintf(tipo, "constante de tipo %s (valor: %s)", tipo_cte, valor_cte);
 			}
 			else 
 				strcpy(tipo, "constante");
@@ -183,8 +242,11 @@ void TS_eliminar_registro(TS_simbolo* sim)
 		break;
 		case TS_VAR:
 		{
-			free((void*)(((TS_var*)sim->registro)->tipo));
+			int buscar_registro(const void* sim2) { return ((const TS_simbolo*)sim2)->registro == (const void*)((((TS_var*)sim->registro)->tipo)); }
+			if(lista_buscar(simbolos, buscar_registro) != -1)
+				free((void*)(((TS_var*)sim->registro)->tipo));
 			free((void*)sim->registro);
+			
 		}
 		break;
 	}
@@ -249,6 +311,15 @@ void TS_eliminar_simbolo(TS_simbolo* sim)
 TS_simbolo* TS_buscar_simbolo(int id)
 {
 	int busqueda(const void* sim) { return ((TS_simbolo*)sim)->id == id; }
+	int i;
+	if( (i=lista_buscar(simbolos, busqueda)) != -1)
+		return (TS_simbolo*)lista_consultar(simbolos,i);
+	return NULL;
+}
+
+TS_simbolo* TS_buscar_simbolo_por_nombre(const char* nombre)
+{
+	int busqueda(const void* sim) { return strcmp(((TS_simbolo*)sim)->nombre, nombre) == 0; }
 	int i;
 	if( (i=lista_buscar(simbolos, busqueda)) != -1)
 		return (TS_simbolo*)lista_consultar(simbolos,i);

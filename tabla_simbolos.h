@@ -98,17 +98,22 @@ typedef struct TS_var
     TS_tipo* tipo; /* tipo de dato de la variable */
 } TS_var;
 
-typedef struct TS_cte
+typedef struct TS_cte_val
 {
-    int tipo; /* indica el tipo de dato básico de la cte. Es ST_DESCONOCIDO si se desconoce el tipo de cte */
-    union   /* en función del tipo, se podrá acceder a uno de estos campos para obtener el valor de la cte */
+    union /* en función del tipo, se podrá acceder a uno de estos campos para obtener el valor de la cte */
     {
         int entero;
         double real;
         int booleano;
         char caracter;
-        char* string;
+        char string[256];
     };
+} TS_cte_val;
+
+typedef struct TS_cte
+{
+    int tipo; /* indica el tipo de dato básico de la cte. Es ST_DESCONOCIDO si se desconoce el tipo de cte */
+    TS_cte_val val; /* el valor de la cte */
 } TS_cte;
 
 /* Estructura que contiene información añadida de un símbolo (si es una función) */
@@ -181,6 +186,21 @@ int TS_intertar_simbolo(const char* nombre);
 */
 void TS_modificar_tipo(int id, int tipo);
 
+
+/**
+ * Establece el valor de una cte de la tabla de símbolos.
+ * @param id Es la id de la cte
+ * @param val Es el valor de la cte
+ */
+void TS_modificar_cte(int id, TS_cte_val val);
+
+/**
+ * Modifica el tipo de una variable existente para que tenga el tipo de un símbolo
+ * también existente 
+ * @param id_var Es la id de la variable
+ * @param nombre_tipo Es el nombre del tipo.
+ */
+void TS_vincular_tipo(int id_var, const char* nombre_tipo);
 
 /**
  * Crea una nueva variable temporal en la tabla de símbolos.
