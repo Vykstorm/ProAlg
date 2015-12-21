@@ -17,6 +17,7 @@
 {
 	#include "util/pila.h"
 	#include "tabla_simbolos.h"
+	#include "traducciones.h"
 	
 	/* estructura auxiliar para valores semánticos de ctes */
 	typedef struct C_cte_t
@@ -156,7 +157,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	exp_a
+	declaracion_var exp_a
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -194,17 +195,161 @@ expresion:
 	|funcion_ll
 
 exp_a:
-	exp_a T_suma exp_a 
-	| exp_a T_resta exp_a 
-	| exp_a T_mult exp_a 
-	| exp_a T_div_entera exp_a 
-	| exp_a T_div exp_a 
-	| T_inic_parentesis exp_a T_fin_parentesis
+	exp_a T_suma exp_a { 
+		printf("hola\n");
+		int T=TS_newtempvar();
+		$$.place = T;
+		if($1.tipo == TS_ENTERO)
+		{
+			if($3.tipo == TS_ENTERO)
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_ENTERO);
+				gen_asig_binaria(TR_OP_SUMA, $1.place, $3.place, T);
+			}
+			else
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_REAL);
+				gen_asig_unaria(TR_OP_INT_TO_REAL, $1.place, T);
+				gen_asig_binaria(TR_OP_SUMA_REAL, T, $3.place, T);
+			}
+		} 
+		else 
+		{	
+			if($3.tipo == TS_ENTERO)
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_REAL);
+				gen_asig_unaria(TR_OP_INT_TO_REAL, $3.place, T);
+				gen_asig_binaria(TR_OP_SUMA_REAL, $1.place, T, T);
+			}
+			else
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_REAL);
+				gen_asig_binaria(TR_OP_SUMA_REAL, $1.place, $3.place, T);
+			}
+		}
+
+	}
+	| exp_a T_resta exp_a { 
+		int T=TS_newtempvar();
+		$$.place = T;
+		if($1.tipo == TS_ENTERO)
+		{
+			if($3.tipo == TS_ENTERO)
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_ENTERO);
+				gen_asig_binaria(TR_OP_RESTA, $1.place, $3.place, T);
+			}
+			else
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_REAL);
+				gen_asig_unaria(TR_OP_INT_TO_REAL, $1.place, T);
+				gen_asig_binaria(TR_OP_RESTA_REAL, T, $3.place, T);
+			}
+		} 
+		else 
+		{	
+			if($3.tipo == TS_ENTERO)
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_REAL);
+				gen_asig_unaria(TR_OP_INT_TO_REAL, $3.place, T);
+				gen_asig_binaria(TR_OP_RESTA_REAL, $1.place, T, T);
+			}
+			else
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_REAL);
+				gen_asig_binaria(TR_OP_RESTA_REAL, $1.place, $3.place, T);
+			}
+		}
+
+	}
+	| exp_a T_mult exp_a { 
+		int T=TS_newtempvar();
+		$$.place = T;
+		if($1.tipo == TS_ENTERO)
+		{
+			if($3.tipo == TS_ENTERO)
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_ENTERO);
+				gen_asig_binaria(TR_OP_MULT, $1.place, $3.place, T);
+			}
+			else
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_REAL);
+				gen_asig_unaria(TR_OP_INT_TO_REAL, $1.place, T);
+				gen_asig_binaria(TR_OP_MULT_REAL, T, $3.place, T);
+			}
+		} 
+		else 
+		{	
+			if($3.tipo == TS_ENTERO)
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_REAL);
+				gen_asig_unaria(TR_OP_INT_TO_REAL, $3.place, T);
+				gen_asig_binaria(TR_OP_MULT_REAL, $1.place, T, T);
+			}
+			else
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_REAL);
+				gen_asig_binaria(TR_OP_MULT_REAL, $1.place, $3.place, T);
+			}
+		}
+}
+	| exp_a T_div_entera exp_a { 
+		int T=TS_newtempvar();
+		$$.place = T;
+		if(($1.tipo == TS_ENTERO) && ($3.tipo == TS_ENTERO))
+		{
+			TS_modificar_simbolo(T,TS_VAR|TS_ENTERO);
+			gen_asig_binaria(TR_OP_DIV, $1.place, $3.place, T);
+		}
+		else
+		{
+			/* error */
+		}
+	} 
+	| exp_a T_div exp_a { 
+		int T=TS_newtempvar();
+		$$.place = T;
+		if($1.tipo == TS_ENTERO)
+		{
+			if($3.tipo == TS_ENTERO)
+			{
+				int S=TS_newtempvar();
+				TS_modificar_simbolo(S,TS_VAR|TS_REAL);
+				TS_modificar_simbolo(T,TS_VAR|TS_REAL);
+				gen_asig_unaria(TR_OP_INT_TO_REAL, $1.place, T);
+				gen_asig_unaria(TR_OP_INT_TO_REAL, $3.place, S);
+				gen_asig_binaria(TR_OP_DIV, T, S, T);
+			}
+			else
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_REAL);
+				gen_asig_unaria(TR_OP_INT_TO_REAL, $1.place, T);
+				gen_asig_binaria(TR_OP_DIV_REAL, T, $3.place, T);
+			}
+		} 
+		else 
+		{	
+			if($3.tipo == TS_ENTERO)
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_REAL);
+				gen_asig_unaria(TR_OP_INT_TO_REAL, $3.place, T);
+				gen_asig_binaria(TR_OP_DIV_REAL, $1.place, T, T);
+			}
+			else
+			{
+				TS_modificar_simbolo(T,TS_VAR|TS_REAL);
+				gen_asig_binaria(TR_OP_DIV_REAL, $1.place, $3.place, T);
+			}
+		}
+	}
+	//| T_inic_parentesis exp_a T_fin_parentesis
 	| operando { $$ = $1; }
-	| T_literal_entero
-	| T_literal_real
-	| T_resta exp_a { int T=TS_newtempvar(); TS_modificar_var( }
+	| T_literal_entero { int L=TS_newliteral(); TS_modificar_simbolo(L, TS_CTE|TS_ENTERO); TS_cte_val val; val.entero=$1; TS_modificar_cte(L, val); $$.place = L; $$.tipo = TS_ENTERO;  }
+	| T_literal_real { int L=TS_newliteral(); TS_modificar_simbolo(L, TS_CTE|TS_REAL); TS_cte_val val;  val.real=$1; TS_modificar_cte(L, val); $$.place = L; $$.tipo = TS_REAL;  }
+	| T_resta exp_a { int T=TS_newtempvar(); TS_modificar_simbolo(T,TS_VAR|$2.tipo); $$.place = T; $$.tipo = $2.tipo; if($2.tipo == TS_REAL) { gen_asig_unaria($2.place, TR_OP_NEG_REAL , T); } else { gen_asig_unaria($2.place, TR_OP_NEG , T); }  }
 	| exp_a T_mod exp_a
+
 
 exp_b:
 	exp_b T_y exp_b
@@ -216,8 +361,8 @@ exp_b:
 	| T_inic_parentesis exp_b T_fin_parentesis 
 
 operando:
-	// T_id  { int id; if((id=TS_buscar_simbolo($1)) == -1) { /* error */ } else {  $$.place = id; int tipo=TS_consultar_tipo(id); if(((tipo&0x00FF) == TS_VAR) && (((tipo&0xFF00) == TS_REAL) || ((tipo&0xFF00) == TS_ENTERO)) ) { $$.tipo = tipo&0xFF00; } else { /* error */ }  }  }
-	T_id  { int id =TS_insertar_simbolo($1); TS_modificar_simbolo(id, TS_VAR|TS_REAL); $$.place = id; int tipo=TS_consultar_tipo(id); if(((tipo&0x00FF) == TS_VAR) && (((tipo&0xFF00) == TS_REAL) || ((tipo&0xFF00) == TS_ENTERO)) ) { $$.tipo = tipo&0xFF00; printf("adios\n"); } else { /* error */  }    }
+	T_id  { int id; if((id=TS_buscar_simbolo($1)) == -1) { /* error */ } else {  $$.place = id; int tipo=TS_consultar_tipo(id); if(((tipo&0x00FF) == TS_VAR) && (((tipo&0xFF00) == TS_REAL) || ((tipo&0xFF00) == TS_ENTERO)) ) { $$.tipo = tipo&0xFF00; } else { /* error */ }  }  }
+	// T_id  { int id =TS_insertar_simbolo($1); TS_modificar_simbolo(id, TS_VAR|TS_REAL); $$.place = id; int tipo=TS_consultar_tipo(id); if(((tipo&0x00FF) == TS_VAR) && (((tipo&0xFF00) == TS_REAL) || ((tipo&0xFF00) == TS_ENTERO)) ) { $$.tipo = tipo&0xFF00; } else { /* error */  }    }
 	| operando T_referencia operando 
 	| operando T_inic_array expresion T_fin_array 
 	| operando T_ref
