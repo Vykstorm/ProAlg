@@ -304,6 +304,7 @@ void TS_modificar_registro(TS_simbolo* sim, int tipo)
 		case TS_CTE:
 		{
 			TS_cte* cte = (TS_cte*)malloc(sizeof(TS_cte));
+			printf("%x\n", tipo);
 			//assert((tipo & 0x8000) != 0);
 			cte->tipo = tipo & 0xFF00;
 			sim->registro = (void*)cte;
