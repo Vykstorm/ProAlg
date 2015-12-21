@@ -114,8 +114,8 @@ comentario \{([^\}]|\/\})*\}
 	/* Reglas para literales */
 {literal_entero} { yylval.C_literal_entero=atoi(yytext);return T_literal_entero;}
 {literal_real} {yylval.C_literal_entero=atof(yytext); return T_literal_real; }
-{literal_caracter} {strcpy(yylval.C_literal_string, yytext); return T_literal_caracter;}
-{literal_string} { strcpy(yylval.C_literal_string, yytext);  return T_literal_string; }
+{literal_caracter} { yylval.C_literal_caracter = yytext[1]; return T_literal_caracter;}
+{literal_string} { strncpy(yylval.C_literal_string, yytext+1, strlen(yytext)-2);  return T_literal_string; }
 {comentario} {return T_comentario;}
 	/* Tenemos un caso especial para literales booleanos */
 {r_verdadero} { yylval.C_literal_booleano=1; return T_literal_booleano; }
