@@ -24,6 +24,13 @@
 		int tipo;  /* tipo de cte */
 		TS_cte_val val; /* el valor de la cte */
 	} C_cte_t;
+	
+	/* estructura auxiliar para valores semánticos de exp aritméticas */
+	typedef struct C_exp_a_t
+	{
+		int tipo; 
+		int place; /* apuntador a la tabla de símbolos */
+	} C_exp_a_t;
 }
 
 /* Definición de yystype. Contiene los campos con los que podemos suministrar
@@ -39,8 +46,11 @@
 	int C_tipo_base;
 	char C_oprel[3];
 	
-	pila C_lista_id;
-	C_cte_t C_cte;
+	pila C_lista_id; /* para listados de ids */
+	C_cte_t C_cte;	/* para la declaración de ctes */
+	TS_tipo C_registro_tipo;  /* para la declaración de tipos */
+	C_exp_a_t C_exp_a;
+	
 }
 
 /* Asociamos identificadores de tokens de bison a campos de yystype */
@@ -116,10 +126,12 @@
 
 /* Asociamos no terminales a campos de la unión */
 %type <C_lista_id> lista_id
-%type <C_tipo_base> d_tipo
+%type <C_tipo_base> dd_tipo
 %type <C_cte> literal
 %type <C_cte> constante
 
+%type <C_exp_a> operando
+%type <C_exp_a> exp_a
 
 
 /* Indicamos la asociatividad y prioridad de los operadores */
@@ -144,7 +156,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	declaracion_cte
+	exp_a
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -176,8 +188,8 @@ declaraciones:
 	
 	
 /* Declaraciones para expresiones */
-expresion:
-	exp_a
+expresion: 
+	exp_a 
 	| exp_b
 	|funcion_ll
 
@@ -188,10 +200,10 @@ exp_a:
 	| exp_a T_div_entera exp_a 
 	| exp_a T_div exp_a 
 	| T_inic_parentesis exp_a T_fin_parentesis
-	| operando
+	| operando { $$ = $1; }
 	| T_literal_entero
 	| T_literal_real
-	| T_resta exp_a
+	| T_resta exp_a { int T=TS_newtempvar(); TS_modificar_var( }
 	| exp_a T_mod exp_a
 
 exp_b:
@@ -204,11 +216,11 @@ exp_b:
 	| T_inic_parentesis exp_b T_fin_parentesis 
 
 operando:
-	T_id
+	// T_id  { int id; if((id=TS_buscar_simbolo($1)) == -1) { /* error */ } else {  $$.place = id; int tipo=TS_consultar_tipo(id); if(((tipo&0x00FF) == TS_VAR) && (((tipo&0xFF00) == TS_REAL) || ((tipo&0xFF00) == TS_ENTERO)) ) { $$.tipo = tipo&0xFF00; } else { /* error */ }  }  }
+	T_id  { int id =TS_insertar_simbolo($1); TS_modificar_simbolo(id, TS_VAR|TS_REAL); $$.place = id; int tipo=TS_consultar_tipo(id); if(((tipo&0x00FF) == TS_VAR) && (((tipo&0xFF00) == TS_REAL) || ((tipo&0xFF00) == TS_ENTERO)) ) { $$.tipo = tipo&0xFF00; printf("adios\n"); } else { /* error */  }    }
 	| operando T_referencia operando 
 	| operando T_inic_array expresion T_fin_array 
 	| operando T_ref
-
 
 
 /* Declaración para instrucciones */
@@ -224,7 +236,7 @@ instruccion:
 	|accion_ll
 
 asignacion:
-	operando T_asignacion expresion 
+	operando T_asignacion expresion { }
 
 alternativa:
 	T_si expresion T_entonces instrucciones lista_opciones T_fsi 
@@ -255,10 +267,14 @@ declaracion_var:
 
 /* Declaraciones de tipos */	
 lista_de_tipo:
-	T_id T_creacion_tipo d_tipo T_comp_secuencial lista_de_tipo
-	|
+	T_id T_creacion_tipo dd_tipo T_comp_secuencial lista_de_tipo
+	| T_id T_creacion_tipo T_id T_comp_secuencial lista_de_tipo
 
 d_tipo:
+	dd_tipo 
+	| T_id 
+	
+dd_tipo:
 	T_tupla lista_campos T_ftupla { $$ = TS_TUPLA; }
 	| T_tabla T_inic_array expresion_t T_subrango expresion_t T_fin_array T_de d_tipo { $$ = TS_TABLA; }
 	| T_id { $$ = TS_UNKNOWN; } 
@@ -290,7 +306,7 @@ literal:
 
 lista_de_var:
 	lista_id T_def_tipo_variable T_id T_comp_secuencial lista_de_var { while(!pila_vacia($1)) { TS_modificar_var(desapilar($1), $3); } }
-	| lista_id T_def_tipo_variable d_tipo T_comp_secuencial lista_de_var { while(!pila_vacia($1)) { TS_modificar_simbolo(desapilar($1), TS_VAR | $3); } } 
+	| lista_id T_def_tipo_variable dd_tipo T_comp_secuencial lista_de_var { while(!pila_vacia($1)) { TS_modificar_simbolo(desapilar($1), TS_VAR | $3); } } 
 	|
 lista_id:
 	T_id T_separador lista_id { apilar($3, TS_insertar_simbolo($1)); $$ = $3; }
