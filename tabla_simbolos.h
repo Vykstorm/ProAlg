@@ -200,7 +200,7 @@ void TS_modificar_cte(int id, TS_cte_val val);
  * @param id_var Es la id de la variable
  * @param nombre_tipo Es el nombre del tipo.
  */
-void TS_vincular_tipo(int id_var, const char* nombre_tipo);
+void TS_modificar_var(int id_var, const char* nombre_tipo);
 
 /**
  * Crea una nueva variable temporal en la tabla de símbolos.

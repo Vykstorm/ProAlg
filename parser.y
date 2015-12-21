@@ -289,7 +289,7 @@ literal:
 	| T_literal_string { $$.tipo = TS_STRING; strcpy($$.val.string, $1); }
 
 lista_de_var:
-	lista_id T_def_tipo_variable T_id T_comp_secuencial lista_de_var { while(!pila_vacia($1)) { TS_vincular_tipo(desapilar($1), $3); } }
+	lista_id T_def_tipo_variable T_id T_comp_secuencial lista_de_var { while(!pila_vacia($1)) { TS_modificar_var(desapilar($1), $3); } }
 	| lista_id T_def_tipo_variable d_tipo T_comp_secuencial lista_de_var { while(!pila_vacia($1)) { TS_modificar_simbolo(desapilar($1), TS_VAR | $3); } } 
 	|
 lista_id:

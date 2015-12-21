@@ -86,7 +86,7 @@ void TS_modificar_cte(int id, TS_cte_val val)
 	}
 }
 
-void TS_vincular_tipo(int id_var, const char* nombre_tipo)
+void TS_modificar_var(int id_var, const char* nombre_tipo)
 {
 	TS_simbolo *sim_var, *sim_tipo;
 	sim_var=TS_buscar_simbolo(id_var);
