@@ -2,14 +2,54 @@
 #include "traducciones.h"
 #include <stdio.h>
 #include <assert.h>
+#include "util/lista.h"
+#include "util/cola.h"
 
+
+int cont=0;
+lista cuadruplas = NULL;
 void gen(TR_cuadrupla q)
 {
 	printf("cuadrupla: %d %d %d %d\n", q.op, q.ops[0], q.ops[1], q.res);
-	
+	cont++;
 	/* guardar la cuadrupla en el fichero de cuadruplas */
+	if(cuadruplas == NULL)
+		cuadruplas = crear_lista(sizeof(TR_cuadrupla));
+	lista_insertar_cola(cuadruplas, (const void*)&q);
 }
 
+
+void backpatch(lista L, int quad)
+{
+	assert(L != NULL);
+	void insertar(const void* el) { int val = (*(int*)el); TR_cuadrupla* q = ((TR_cuadrupla*)lista_consultar(cuadruplas, val)); assert(q != NULL); q->res=quad;}
+	lista_recorrer(L, insertar);
+}
+
+lista makelist(int quad)
+{
+	cola A = crear_cola();
+	pedir_turno(A, quad);
+	return A;
+}
+
+
+lista merge(lista L1,lista L2)
+{
+	cola B = crear_cola();
+	void insertar(const void* el) { int val = (*(int*)el);pedir_turno(B, val); }
+	lista_recorrer(L1, insertar);
+	lista_recorrer(L2, insertar);
+	
+	return B;
+}
+
+//Devuelve la siguiente cuadrupla
+int nextquad()
+{
+	assert(cuadruplas != NULL);
+	return lista_len(cuadruplas);
+}
 
 void gen_asig_binaria(int op_binario, int op1, int op2, int res)
 {

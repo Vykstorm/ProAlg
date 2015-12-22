@@ -7,7 +7,7 @@
 
 #ifndef __TRADUCCIONES_H
 #	define __TRADUCCIONES_H
-
+#include "util/lista.h"
 
 /* Define todos los posibles valores para los operadores en las cuadruplas */
 typedef enum TR_operador 
@@ -90,6 +90,17 @@ typedef struct TR_cuadrupla
  * en notación postfija (se guarda al final del fichero)
  */
 void gen(TR_cuadrupla q);
+int nextquad();
+
+//Devuelve una lista con un único valor, el que se le pasa como parametro
+lista makelist(int quad);
+
+//Devuelve una lista que es contiene los elementos de las dos listas pasadas como argumentos
+lista merge(lista L1,lista L2);
+
+//Completa todas las cuadruplas de la lista para que salten a la cuadrupla especificada 
+void backpatch(lista L, int quad);
+
 
 /* Los siguientes métodos crean cuadruplas correspondientes a cada uno de los tipos de instrucciones,
  * y llaman a gen, para guardarla en el fichero de cuadruplas */
