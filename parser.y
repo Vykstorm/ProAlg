@@ -29,14 +29,14 @@
 	/* estructura auxiliar para valores semánticos de exp aritméticas */
 	typedef struct C_exp_a_t
 	{
-		lista true,false;
+		int tipo; 
+		int place; /* apuntador a la tabla de símbolos */
 	} C_exp_a_t;
 
 	/* estructura auxiliar para valores semánticos de exp booleanas */
 	typedef struct C_exp_b_t
 	{
-		int tipo; 
-		int place; /* apuntador a la tabla de símbolos */
+		lista true,false;
 	} C_exp_b_t;
 }
 
@@ -57,7 +57,9 @@
 	pila C_lista_id; /* para listados de ids */
 	C_cte_t C_cte;	/* para la declaración de ctes */
 	TS_tipo C_registro_tipo;  /* para la declaración de tipos */
-	C_exp_a_t C_exp_a;
+	C_exp_a_t C_exp_a; /* para expresiones aritméticas */
+	C_exp_b_t C_exp_b; /* para expresiones booleanas */
+	
 	int M_b; /*para reducciones por cadena vacia para las expresiones booleanas*/
 	
 }
@@ -143,7 +145,8 @@
 %type <C_exp_a> operando
 %type <C_exp_a> exp_a
 %type <M_b> M_b
-%type <C_exp_b_t> exp_b
+%type <C_exp_b> exp_b
+%type <C_exp_b> operando_b
 
 
 /* Indicamos la asociatividad y prioridad de los operadores */
@@ -168,7 +171,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	declaracion_var exp_a
+	declaracion_var exp_b
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -388,13 +391,17 @@ exp_a:
 
 //Expresiones booleanas
 exp_b:
-	exp_b T_y M_b exp_b { }
-	| exp_b T_o M_b exp_b 
-	| T_no exp_b 
-	| operando_b
-	| T_literal_booleano 
-	| expresion T_oprel expresion
-	| T_inic_parentesis exp_b T_fin_parentesis 
+	exp_b T_y M_b exp_b { backpatch($$.true, $3); $$.false = merge($1.false, $4.false); $$.true = $4.true;  }
+	| exp_b T_o M_b exp_b { backpatch($$.false, $3); $$.true = merge($1.true, $4.true); $$.false = $4.false;  } 
+	| T_no exp_b { $$.true = $2.false; $$.false = $$.true; } 
+	| operando_b { $$ = $1;  }
+	| T_literal_booleano {$$.true = makelist(nextquad()); $$.false = makelist(nextquad()+1); gen_salto_incondicional(-1); gen_salto_incondicional(-1); if(!$1) { lista aux = $$.false; $$.false = $$.true; $$.true = aux; }  }
+	| expresion T_oprel expresion {  }
+	| T_inic_parentesis exp_b T_fin_parentesis { $$ = $2; }
+	
+	// debe estar en operando_b
+	| T_id { int id; if(((id=TS_buscar_simbolo($1)) == -1) || !((TS_consultar_tipo(id)&TS_BOOLEANO)==TS_BOOLEANO)) { /* error */  } else{ $$.true = makelist(nextquad()); $$.false = makelist(nextquad()+1);  gen_salto_condicional2(id,-1); gen_salto_incondicional(-1); }}
+
 M_b:
 	| {$$=nextquad();}
 
@@ -406,10 +413,11 @@ operando:
 	| operando T_ref
 
 operando_b:
-	T_id {int id; if(((id=TS_buscar_simbolo($1)) == -1) || !((TS_consultar_tipo(id)&TS_BOOLEANO)==TS_BOOLEANO)) { /* error */ } else{$$}}
+	// T_id { printf("hola!!!\n"); int id; if(((id=TS_buscar_simbolo($1)) == -1) || !((TS_consultar_tipo(id)&TS_BOOLEANO)==TS_BOOLEANO)) { /* error */  } else{ $$.true = makelist(nextquad()); $$.false = makelist(nextquad()+1);  gen_salto_condicional2(id,-1); gen_salto_incondicional(-1); }}
 /*	| operando_b T_referencia operando_b 
 	| operando_b T_inic_array expresion T_fin_array 
 	| operando_b T_ref*/
+
 
 /* Declaración para instrucciones */
 instrucciones:
