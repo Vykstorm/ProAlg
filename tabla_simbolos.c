@@ -127,6 +127,14 @@ int TS_consultar_tipo(int id)
 	return tipo;
 }
 
+TS_cte_val TS_consultar_cte(int id)
+{
+	TS_simbolo* sim;
+	sim = TS_buscar_simbolo_por_id(id);
+	assert((sim != NULL) && (sim->tipo == TS_CTE));
+	return ((TS_cte*)sim->registro)->val;
+}
+
 int TS_newtempvar()
 {
 	/* creamos el símbolo */

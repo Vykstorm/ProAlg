@@ -145,7 +145,6 @@ void TS_inicializar();
 */
 void TS_liberar();
 
-
 /// Consultas y búsquedas en la tabla de símbolos
 /**
  * @return Devuelve información sobre el tipo de símbolo
@@ -154,6 +153,11 @@ void TS_liberar();
  */
 int TS_consultar_tipo(int id);
 
+
+/**
+ * @return Devuelve el valor de una cte que está en la tabla de símbolos.
+ */
+TS_cte_val TS_consultar_cte(int id);
 
 /// Insercciones y eliminaciones en la tabla de símbolos.
 
