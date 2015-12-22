@@ -43,3 +43,6 @@ parser.tab.h
 *_debug.y
 *_debug.c
 *_debug.flex
+
+# Files created by gedit
+*~
