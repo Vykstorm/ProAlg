@@ -549,7 +549,6 @@ l_ll:
 		return m;
 	}
 	
-	
 	/* Definición de procedimientos auxiliares */
 int yyerror(const char* s) /* Error de parseo */
 {
