@@ -8,6 +8,7 @@
 ///// Variables y funciones auxiliares 
 lista simbolos;
 int TS_contador_id = 1;
+int TS_cte_verdadero_id;
 
 void 	TS_modificar_registro(TS_simbolo* sim, int tipo);
 void 	TS_eliminar_registro(TS_simbolo* sim);
@@ -19,6 +20,10 @@ TS_simbolo* TS_buscar_simbolo_por_nombre(const char* nombre);
 void TS_inicializar()
 {
 	simbolos = crear_lista(sizeof(TS_simbolo));
+	
+	TS_cte_verdadero_id = TS_newliteral();
+	TS_cte_val val; val.booleana = true;
+	TS_modificar_cte(TS_cte_verdadero_id, val);
 }
 
 void TS_liberar()
@@ -157,6 +162,11 @@ int TS_newliteral()
 	lista_insertar_cola(simbolos, (void*)&sim);
 	TS_modificar_registro((TS_simbolo*)lista_cola(simbolos), TS_CTE);
 	return sim.id;
+}
+
+int TS_cte_verdadero()
+{
+	return TS_cte_verdadero_id;
 }
 
 

@@ -159,6 +159,15 @@ int TS_consultar_tipo(int id);
  */
 TS_cte_val TS_consultar_cte(int id);
 
+
+/**
+ * @return Devuelve una cte creada por la tabla de símbolos cuyo valor es verdadero. Esto se usa para generar
+ * las instrucciones de salto condicionales, en las que se salta en función de si una variable booleana es cierta
+ * o falsa.
+ */
+int TS_cte_verdadero();
+
+
 /// Insercciones y eliminaciones en la tabla de símbolos.
 
 

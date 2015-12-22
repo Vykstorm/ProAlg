@@ -1,5 +1,6 @@
 
 #include "traducciones.h"
+#include "tabla_simbolos.h"
 #include <stdio.h>
 #include <assert.h>
 #include "util/lista.h"
@@ -99,6 +100,11 @@ void gen_salto_condicional(int op_rel, int op1, int op2, int direccion)
 	q.ops[1] = op2;
 	q.res = direccion;
 	gen(q);
+}
+
+void gen_salto_condicional2(int op, int direccion)
+{
+	gen_salto_condicional(TR_OP_EQUAL, op, TS_cte_verdadero(), direccion);
 }
 
 void gen_parametro(int param)

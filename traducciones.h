@@ -25,7 +25,7 @@ typedef enum TR_operador
 	TR_OP_MATRIX, 			/* para asignaciones matriciales de tipo x = y[i] */
 	TR_OP_MATRIX_ASIG,     /* para asignaciones matriciales del tipo x[i] = y */ 
 		
-	
+
 	/* aritmética */
 	TR_OP_SUMA = 0x0010 | 1<<15,			  
 	TR_OP_RESTA = 0x0011 | 1<<15,
@@ -115,6 +115,8 @@ void gen_copia(int src, int dest); /* A:=B */
 void gen_salto_incondicional(int direccion); /* goto A */
 
 void gen_salto_condicional(int op_rel, int op1, int op2, int direccion); /* if A op B then goto C */
+ 
+void gen_salto_condicional2(int op, int direccion);	 /* if A then goto B */
 
 void gen_parametro(int param); /* param A */
 
