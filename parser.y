@@ -196,7 +196,6 @@ expresion:
 
 exp_a:
 	exp_a T_suma exp_a { 
-		printf("hola\n");
 		int T=TS_newtempvar();
 		$$.place = T;
 		if($1.tipo == TS_ENTERO)
@@ -269,6 +268,13 @@ exp_a:
 		{
 			if($3.tipo == TS_ENTERO)
 			{
+				/* si es una multiplicación en la que uno de los operandos es
+				 * una cte(sabemos su valor) y es una potencia de 2, en vez de usar la instrucción producto,
+				 * podemos hacer un shift*/
+				if(((TS_consultar_tipo($1.place)&TS_CTE) == TS_CTE) && es_potencia_2(TS_consultar_cte($1.place).entero))
+				{
+					
+				}
 				TS_modificar_simbolo(T,TS_VAR|TS_ENTERO);
 				gen_asig_binaria(TR_OP_MULT, $1.place, $3.place, T);
 			}
@@ -343,7 +349,7 @@ exp_a:
 			}
 		}
 	}
-	//| T_inic_parentesis exp_a T_fin_parentesis
+	| T_inic_parentesis exp_a T_fin_parentesis { $$ = $2; }
 	| operando { $$ = $1; }
 	| T_literal_entero { int L=TS_newliteral(); TS_modificar_simbolo(L, TS_CTE|TS_ENTERO); TS_cte_val val; val.entero=$1; TS_modificar_cte(L, val); $$.place = L; $$.tipo = TS_ENTERO;  }
 	| T_literal_real { int L=TS_newliteral(); TS_modificar_simbolo(L, TS_CTE|TS_REAL); TS_cte_val val;  val.real=$1; TS_modificar_cte(L, val); $$.place = L; $$.tipo = TS_REAL;  }
@@ -501,7 +507,18 @@ l_ll:
 	|
 
 %%
-
+	/* Métodos auxiliares */
+	int es_potencia_2(int n)
+	{
+		if(n < 0)
+			n = -n;
+		else if(n == 0)
+			return 0;
+		while((n > 1) && ((n % 2) == 0))
+			n /= 2;
+		return n == 1;
+	}
+	
 	/* Definición de procedimientos auxiliares */
 int yyerror(const char* s) /* Error de parseo */
 {
