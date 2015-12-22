@@ -166,7 +166,7 @@ TS_cte_val TS_consultar_cte(int id);
  * o falsa.
  */
 int TS_cte_verdadero();
-
+int TS_cte_falso();
 
 /// Insercciones y eliminaciones en la tabla de símbolos.
 

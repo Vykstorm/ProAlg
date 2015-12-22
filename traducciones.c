@@ -48,8 +48,7 @@ lista merge(lista L1,lista L2)
 //Devuelve la siguiente cuadrupla
 int nextquad()
 {
-	assert(cuadruplas != NULL);
-	return lista_len(cuadruplas);
+	return (cuadruplas!=NULL) ? lista_len(cuadruplas) : 0;
 }
 
 void gen_asig_binaria(int op_binario, int op1, int op2, int res)
