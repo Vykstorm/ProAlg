@@ -29,9 +29,15 @@
 	/* estructura auxiliar para valores semánticos de exp aritméticas */
 	typedef struct C_exp_a_t
 	{
+		lista true,false;
+	} C_exp_a_t;
+
+	/* estructura auxiliar para valores semánticos de exp booleanas */
+	typedef struct C_exp_b_t
+	{
 		int tipo; 
 		int place; /* apuntador a la tabla de símbolos */
-	} C_exp_a_t;
+	} C_exp_b_t;
 }
 
 /* Definición de yystype. Contiene los campos con los que podemos suministrar
@@ -47,10 +53,12 @@
 	int C_tipo_base;
 	char C_oprel[3];
 	
+	
 	pila C_lista_id; /* para listados de ids */
 	C_cte_t C_cte;	/* para la declaración de ctes */
 	TS_tipo C_registro_tipo;  /* para la declaración de tipos */
 	C_exp_a_t C_exp_a;
+	int M_b; /*para reducciones por cadena vacia para las expresiones booleanas*/
 	
 }
 
@@ -62,6 +70,7 @@
 %token <C_literal_string> T_literal_string
 
 %token <C_id> T_id
+
 
 %token T_asignacion
 %token T_comp_secuencial
@@ -133,6 +142,8 @@
 
 %type <C_exp_a> operando
 %type <C_exp_a> exp_a
+%type <M_b> M_b
+%type <C_exp_b_t> exp_b
 
 
 /* Indicamos la asociatividad y prioridad de los operadores */
@@ -375,14 +386,17 @@ exp_a:
 	| exp_a T_mod exp_a
 
 
+//Expresiones booleanas
 exp_b:
-	exp_b T_y exp_b
-	| exp_b T_o exp_b 
+	exp_b T_y M_b exp_b { }
+	| exp_b T_o M_b exp_b 
 	| T_no exp_b 
-	| operando
+	| operando_b
 	| T_literal_booleano 
 	| expresion T_oprel expresion
 	| T_inic_parentesis exp_b T_fin_parentesis 
+M_b:
+	| {$$=nextquad();}
 
 operando:
 	T_id  { int id; if((id=TS_buscar_simbolo($1)) == -1) { /* error */ } else {  $$.place = id; int tipo=TS_consultar_tipo(id); if(((tipo&0x00FF) == TS_VAR) && (((tipo&0xFF00) == TS_REAL) || ((tipo&0xFF00) == TS_ENTERO)) ) { $$.tipo = tipo&0xFF00; } else { /* error */ }  }  }
@@ -391,6 +405,11 @@ operando:
 	| operando T_inic_array expresion T_fin_array 
 	| operando T_ref
 
+operando_b:
+	T_id {int id; if(((id=TS_buscar_simbolo($1)) == -1) || !((TS_consultar_tipo(id)&TS_BOOLEANO)==TS_BOOLEANO)) { /* error */ } else{$$}}
+/*	| operando_b T_referencia operando_b 
+	| operando_b T_inic_array expresion T_fin_array 
+	| operando_b T_ref*/
 
 /* Declaración para instrucciones */
 instrucciones:
