@@ -1,24 +1,42 @@
-flex_debug = no
-bison_debug = no
+
 debug = no
+parser_warnings = on
+bison_options = 
 
-
-ifeq ($(debug),yes)
-	flex_debug = yes
-	bison_debug = yes
+ifeq ($(debug), yes)
+	ifeq ($(scanner_debug), )
+		scanner_debug = yes
+	endif
+	ifeq ($(parser_debug), )
+		parser_debug = yes
+	endif
+else
+	ifeq ($(scanner_debug), )
+		scanner_debug = no
+	endif
+	ifeq ($(parser_debug), )
+		parser_debug = no
+	endif
 endif
-
-ifeq ($(flex_debug),yes)
+	
+ifeq ($(scanner_debug),yes)
 	scanner = scanner_debug.flex
 else
 	scanner = scanner.flex
 endif
 
-ifeq ($(bison_debug),yes)
+ifeq ($(parser_debug),yes)
 	parser = parser_debug.y
 else
 	parser = parser.y
 endif
+
+ifeq ($(parser_warnings),on)
+	bison_options +=--warnings='other,conflicts-sr,conflicts-rr'
+else
+	bison_options +=--warnings='no-other,no-conflicts-sr,no-conflicts-rr'
+endif
+
 
 modulos = tabla_simbolos.c traducciones.c $(shell find util -name "*.c")
 
@@ -33,7 +51,7 @@ parser_debug.y: parser.y
 	sed -i.bak 's/%token[ ]*<\([^>]*\)>[ ]*T_\(.*\)/%token <\1> T_\2\n%type <\1> Tr_\2/g' parser_debug.y && rm -f parser_debug.y.bak
 	
 parser.c: $(parser)
-	bison --defines=parser.tab.h -o $@ $<
+	bison --defines=parser.tab.h -o $@ $< $(bison_options)
 
 scanner_debug.flex: scanner.flex 
 	cat $< | sed 's/{\([^}]*\)} [ ]*{\([^}]*\)}/{\1} {printf(\"read-token: %s(%s)\\n\", \"\1\", yytext); \2}/g' > $@
