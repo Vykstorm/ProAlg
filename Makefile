@@ -40,6 +40,7 @@ endif
 
 ifeq ($(parser_debug),yes)
 	parser = parser_debug.y
+	bison_options += -v
 else
 	parser = parser.y
 endif
@@ -87,5 +88,5 @@ proalg: parser.c scanner.c $(modulos)
 	
 clean: 
 	rm -f proalg parser.c scanner.c parser.tab.h
-	rm -f scanner_debug.flex parser_debug.y
+	rm -f scanner_debug.flex parser_debug.y parser.output
  

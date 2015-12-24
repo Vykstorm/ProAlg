@@ -38,6 +38,7 @@ proalg
 scanner.c
 parser.c
 parser.tab.h
+parser.output
 
 # Debug files
 *_debug.y
