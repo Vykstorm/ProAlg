@@ -9,6 +9,12 @@
 #	define __TRADUCCIONES_H
 #include "util/lista.h"
 
+
+/* La siguiente macro activa el modo depuración para este módulo. Muestra un mensaje cuando se genera
+ * una instrucción(cuadrupla), o cuando se modifica una (se completa un goto, ...)
+ */
+// #define TR_DEBUG 
+
 /* Define todos los posibles valores para los operadores en las cuadruplas */
 typedef enum TR_operador 
 {
