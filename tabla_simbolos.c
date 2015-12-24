@@ -33,6 +33,11 @@ void TS_inicializar()
 
 void TS_liberar()
 {
+	/* mostramos la tabla de símbolos */
+#ifdef TS_DEBUG
+	TS_printdebug();
+#endif
+	
 	/* eliminamos todos los símbolos */
 	while(!lista_vacia(simbolos))
 	{

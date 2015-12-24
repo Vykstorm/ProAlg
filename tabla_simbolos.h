@@ -10,6 +10,11 @@
 
 ///////// MACROS Y ENUMERACIONES
 
+/**
+ * Si se activa está macro, antes de liberarse la tabla de símbolos, se mostrará el contenido de esta.
+ */
+// #define TS_DEBUG 
+
 /* Tipos de simbolos */
 
 enum TS_tipo_simbolo

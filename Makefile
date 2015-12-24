@@ -2,6 +2,7 @@
 debug = no
 parser_warnings = on
 bison_options = 
+debug_flags = 
 
 ifeq ($(debug), yes)
 	ifeq ($(scanner_debug), )
@@ -10,12 +11,24 @@ ifeq ($(debug), yes)
 	ifeq ($(parser_debug), )
 		parser_debug = yes
 	endif
+	ifeq ($(tr_debug), )
+		tr_debug = yes
+	endif
+	ifeq ($(ts_debug), )
+		ts_debug = yes
+	endif
 else
 	ifeq ($(scanner_debug), )
 		scanner_debug = no
 	endif
 	ifeq ($(parser_debug), )
 		parser_debug = no
+	endif
+	ifeq ($(tr_debug), )
+		tr_debug = no
+	endif
+	ifeq ($(ts_debug), )
+		ts_debug = no
 	endif
 endif
 	
@@ -35,6 +48,14 @@ ifeq ($(parser_warnings),on)
 	bison_options +=--warnings='other,conflicts-sr,conflicts-rr'
 else
 	bison_options +=--warnings='no-other,no-conflicts-sr,no-conflicts-rr'
+endif
+
+ifeq ($(ts_debug),yes)
+	debug_flags += -DTS_DEBUG
+endif
+
+ifeq ($(tr_debug),yes)
+	debug_flags += -DTR_DEBUG
 endif
 
 
@@ -60,7 +81,7 @@ scanner.c: $(scanner)
 	flex -o $@ $<
 	
 proalg: parser.c scanner.c $(modulos)
-	gcc -o $@ $^ -lfl 
+	gcc -o $@ $^ -lfl $(debug_flags)
 	
 	
 	

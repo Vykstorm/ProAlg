@@ -403,7 +403,7 @@ exp_b:
 	| T_id { int id; if(((id=TS_buscar_simbolo($1)) == -1) || !((TS_consultar_tipo(id)&TS_BOOLEANO)==TS_BOOLEANO)) { /* error */  } else{ $$.true = makelist(nextquad()); $$.false = makelist(nextquad()+1);  gen_salto_condicional2(id,-1); gen_salto_incondicional(-1); }}
 
 M_b:
-	| {$$=nextquad();}
+	{$$=nextquad();}
 
 operando:
 	T_id  { int id; if((id=TS_buscar_simbolo($1)) == -1) { /* error */ } else {  $$.place = id; int tipo=TS_consultar_tipo(id); if(((tipo&0x00FF) == TS_VAR) && (((tipo&0xFF00) == TS_REAL) || ((tipo&0xFF00) == TS_ENTERO)) ) { $$.tipo = tipo&0xFF00; } else { /* error */ }  }  }
@@ -586,7 +586,6 @@ int main(int argc,char ** argv)
 {
 	TS_inicializar();
 	yyparse();
-	TS_printdebug();
 	TS_liberar();
 }
 

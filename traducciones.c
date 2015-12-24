@@ -23,8 +23,10 @@ void gen(TR_cuadrupla q)
 	lista_insertar_cola(cuadruplas, (const void*)&q);
 	
 	/* para depurar la generación de código */
+#ifdef TR_DEBUG
 	printf("gen(%d):  ", nextquad()-1);
 	print_cuadrupla(q);
+#endif
 }
 
 void completar_salto(int salto, int quad)
@@ -34,8 +36,10 @@ void completar_salto(int salto, int quad)
 	q->res = quad;
 	
 	/* imprimir información de depuración */
+#ifdef TR_DEBUG
 	printf("salto completado(%d):  ",salto);
 	print_cuadrupla(*q);
+#endif
 }
 
 void backpatch(lista L, int quad)
