@@ -207,8 +207,9 @@ declaraciones:
 	
 /* Declaraciones para expresiones */
 expresion: 
-	exp_a { printf("exp_a\n"); }  
-	| exp_b { printf("exp_b\n"); }
+	exp_a  
+	| exp_b 
+	| funcion_ll
 	
 exp_a:
 	operando_a T_suma operando_a { 
@@ -405,10 +406,11 @@ M_b:
 operando_b:
 	exp_b
 	| operando { if($1.tipo == TS_BOOLEANO) { $$ = $1; } else { /* error */ } }
+	//| funcion_ll { /* comprobar si el val. retorno es booleano */ }
 operando_a:
 	exp_a { $$ = $1; }
 	| operando { if(($1.tipo == TS_REAL) || ($1.tipo == TS_ENTERO)) { $$ = $1; } else { /* error */ } }
-	
+	// | funcion_ll { /* comprobar si el val. retorno es aritmético */ }
 operando:
 	T_id  { 
 		int id; 
