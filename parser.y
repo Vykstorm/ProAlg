@@ -173,7 +173,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	declaracion_var expresion
+	desc_algoritmo
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -186,12 +186,12 @@ bloque_alg:
 decl_globales:
 	decl_globales declaracion_tipo
 	|decl_globales declaracion_cte
-	|
+	| %empty
 
 decl_a_f:
 	decl_a_f accion_d
 	|decl_a_f funcion_d
-	|
+	| %empty
 
 bloque:
 	declaraciones instrucciones
@@ -201,12 +201,12 @@ declaraciones:
 	declaraciones declaracion_tipo
 	| declaraciones declaracion_cte
 	| declaraciones declaracion_var
-	|
+	| %empty
 	
 	
 /* Declaraciones para expresiones */
 expresion: 
-	exp_a { printf("exp_a\n"); }
+	exp_a { printf("exp_a\n"); } 
 	
 exp_a:
 	exp_a T_suma exp_a { 
@@ -504,13 +504,13 @@ expresion_t:
 	| T_literal_caracter
 lista_campos:
 	T_id T_def_tipo_variable d_tipo T_comp_secuencial lista_campos
-	|
+	| %empty
 
 
 /* Declaración de constantes y variables */
 lista_de_cte:
 	T_id T_creacion_tipo constante T_comp_secuencial lista_de_cte { int id=TS_insertar_simbolo($1); TS_modificar_simbolo(id, TS_CTE | $3.tipo); TS_modificar_cte(id,$3.val); }
-	|
+	| %empty
 
 constante:
 	literal { $$ = $1; } 
@@ -555,7 +555,7 @@ f_cabecera:
 d_par_form:
 	d_p_form T_comp_secuencial d_par_form
 	| d_p_form 
-	|
+	| %empty
 d_p_form:
 	T_ent lista_id T_def_tipo_variable d_tipo
 	| T_sal lista_id T_def_tipo_variable d_tipo
@@ -570,7 +570,7 @@ funcion_ll:
 l_ll:
 	expresion T_separador expresion
 	| expresion
-	|
+	| %empty
 
 %%
 	/* Métodos auxiliares */
