@@ -59,7 +59,7 @@ typedef enum TR_operador
 	
 	/* operadores relacionales */
 	TR_OP_EQUAL = 0x0100 | 1<<15,
-	TR_OP_NOT_EQUAL = 0x0200,
+	TR_OP_NOT_EQUAL = 0x0200 | 1<<15,
 	TR_OP_LOWER = 0x0300 | 1<<15,
 	TR_OP_GREATER = 0x0400 | 1<<15,
 	TR_OP_GREATER_EQUAL = 0x0500 | 1<<15,	/* mayor o igual */
