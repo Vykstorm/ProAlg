@@ -123,8 +123,6 @@ void gen_copia(int src, int dest); /* A:=B */
 void gen_salto_incondicional(int direccion); /* goto A */
 
 void gen_salto_condicional(int op_rel, int op1, int op2, int direccion); /* if A op B then goto C */
- 
-void gen_salto_condicional2(int op, int direccion);	 /* if A then goto B */
 
 void gen_parametro(int param); /* param A */
 
