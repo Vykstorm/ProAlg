@@ -40,7 +40,11 @@
 		};
 	} C_exp_t;
 
-
+	/* estructura auxiliar para valores semánticos de las instrucciones */
+	typedef struct C_instr_t
+	{
+		lista next; 
+	} C_instr_t;
 }
 
 /* Definición de yystype. Contiene los campos con los que podemos suministrar
@@ -61,8 +65,8 @@
 	C_cte_t C_cte;	/* para la declaración de ctes */
 	TS_tipo C_registro_tipo;  /* para la declaración de tipos */
 	C_exp_t C_exp; /* para expresiones aritméticas/lógicas/llamadas a funciones */
-	
-	int M_b; /*para reducciones por cadena vacia para las expresiones booleanas*/
+	C_instr_t C_instr; /* para instrucciones */
+	int M_b; /* para reducciones por cadena vacia en algunas exp. booleanas */
 	
 }
 
@@ -148,9 +152,14 @@
 %type <C_exp> operando_a
 %type <C_exp> operando_b
 %type <C_exp> exp_a
-%type <M_b> M_b
 %type <C_exp> exp_b
 %type <C_exp> expresion
+%type <M_b> M_b
+
+
+
+%type <C_instr> instruccion
+%type <C_instr> asignacion
 
 
 /* Indicamos la asociatividad y prioridad de los operadores */
@@ -210,7 +219,6 @@ declaraciones:
 expresion: 
 	exp_a  { $$ = $1; }
 	| exp_b { $$ = $1; }
-//	| funcion_ll
 	
 exp_a:
 	operando_a T_suma operando_a { 
@@ -419,11 +427,9 @@ operando_b:
 			/* error */ 
 		} 
 	}
-	//| funcion_ll { /* comprobar si el val. retorno es booleano */ }
 operando_a:
 	exp_a { $$ = $1; }
 	| operando { if(($1.tipo == TS_REAL) || ($1.tipo == TS_ENTERO)) { $$ = $1; } else { /* error */ } }
-	// | funcion_ll { /* comprobar si el val. retorno es aritmético */ }
 operando:
 	T_id  { 
 		int id; 
@@ -441,6 +447,10 @@ operando:
 	| operando T_referencia operando 
 	| operando T_inic_array expresion T_fin_array 
 	| operando T_ref
+	| funcion_ll {
+		/* guardar el tipo de valor de retorno en la traducción .tipo. Generar una variable temporal
+		 * donde se almacenará dicho valor */
+		}
 
 
 /* Declaración para instrucciones */
@@ -450,14 +460,15 @@ instrucciones:
 
 instruccion:
 	T_continuar
-	| asignacion
+	| asignacion 
 	| alternativa 
 	| iteracion
 	|accion_ll
 
 asignacion:
 	operando T_asignacion expresion {
-		/* los tipos deben coincidir, el tipo expresión expresion sea convertible
+		$$.next = makelistempty();
+		/* los tipos deben coincidir, o el tipo expresión expresion sea convertible
 		 * al tipo operando. */
 		if($1.tipo == $3.tipo)
 		{
@@ -480,6 +491,8 @@ asignacion:
 		}
 	}
 	| operando T_asignacion operando {
+			$$.next = makelistempty();
+			
 			/* comprobar si tipos coinciden */
 			if($1.tipo == $3.tipo)
 			{
