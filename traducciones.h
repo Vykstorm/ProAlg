@@ -107,6 +107,8 @@ lista merge(lista L1,lista L2);
 //Completa todas las cuadruplas de la lista para que salten a la cuadrupla especificada 
 void backpatch(lista L, int quad);
 
+// Genera una lista vacía
+lista makelistempty();
 
 /* Los siguientes métodos crean cuadruplas correspondientes a cada uno de los tipos de instrucciones,
  * y llaman a gen, para guardarla en el fichero de cuadruplas */

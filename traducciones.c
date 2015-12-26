@@ -56,6 +56,11 @@ lista makelist(int quad)
 	return A;
 }
 
+lista makelistempty()
+{
+	return crear_cola();
+}
+
 
 lista merge(lista L1,lista L2)
 {
