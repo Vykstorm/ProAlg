@@ -8,7 +8,7 @@
 ///// Variables y funciones auxiliares 
 lista simbolos;
 int TS_contador_id = 1;
-int TS_cte_verdadero_id, TS_cte_falso_id;
+int TS_cte_verdadero_id, TS_cte_falso_id, TS_cte_0_id, TS_cte_1_id;
 
 void 	TS_modificar_registro(TS_simbolo* sim, int tipo);
 void 	TS_eliminar_registro(TS_simbolo* sim);
@@ -182,6 +182,16 @@ int TS_cte_verdadero()
 int TS_cte_falso()
 {
 	return TS_cte_falso_id;
+}
+
+int TS_cte_0()
+{
+	return TS_cte_0_id;
+}
+
+int TS_cte_1()
+{
+	return TS_cte_1_id;
 }
 
 
