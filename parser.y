@@ -155,8 +155,7 @@
 %type <C_exp> exp_b
 %type <C_exp> expresion
 %type <M_b> M_b
-
-
+%type <C_exp> condicion
 
 %type <C_instr> instruccion
 %type <C_instr> asignacion
@@ -504,6 +503,39 @@ asignacion:
 				/* error */
 			}
 		}
+		
+/* este no terminal representa una condición */
+condicion:
+	expresion {
+		if($1.tipo == TS_BOOLEANO)
+		{
+			$$ = $1;
+		}
+		else if($1.tipo == TS_ENTERO)
+		{
+			$$.true = makelist(nextquad()); 
+			$$.false = makelist(nextquad()+1);  
+			gen_salto_condicional2($1.place,-1); 
+			gen_salto_incondicional(-1); 
+		}
+	}
+	| operando {
+		if($1.tipo == TS_BOOLEANO)
+		{
+			$$ = $1;
+		}
+		else if($1.tipo == TS_ENTERO)
+		{				
+			$$.true = makelist(nextquad()); 
+			$$.false = makelist(nextquad()+1);  
+			gen_salto_condicional2($1.place,-1); 
+			gen_salto_incondicional(-1); 
+		}
+		else
+		{
+			/* error */
+		}
+	}
 	
 alternativa:
 	T_si expresion T_entonces instrucciones lista_opciones T_fsi 
