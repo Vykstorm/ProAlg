@@ -8,7 +8,7 @@
 ///// Variables y funciones auxiliares 
 lista simbolos;
 int TS_contador_id = 1;
-int TS_cte_verdadero_id, TS_cte_falso_id, TS_cte_0_id, TS_cte_1_id;
+int TS_cte_verdadero_id=0, TS_cte_falso_id=0, TS_cte_0_id=0;
 
 void 	TS_modificar_registro(TS_simbolo* sim, int tipo);
 void 	TS_eliminar_registro(TS_simbolo* sim);
@@ -20,15 +20,6 @@ TS_simbolo* TS_buscar_simbolo_por_nombre(const char* nombre);
 void TS_inicializar()
 {
 	simbolos = crear_lista(sizeof(TS_simbolo));
-	
-	TS_cte_verdadero_id = TS_newliteral();
-	TS_cte_falso_id = TS_newliteral();
-	TS_modificar_simbolo(TS_cte_verdadero_id, TS_CTE|TS_BOOLEANO); 
-	TS_modificar_simbolo(TS_cte_falso_id,TS_CTE|TS_BOOLEANO);
-	TS_cte_val val; val.booleano = 1;
-	TS_modificar_cte(TS_cte_verdadero_id, val);
-	val.booleano = 0;
-	TS_modificar_cte(TS_cte_falso_id,val);
 }
 
 void TS_liberar()
@@ -176,22 +167,38 @@ int TS_newliteral()
 
 int TS_cte_verdadero()
 {
+	if(!TS_cte_verdadero_id)
+	{
+		TS_cte_verdadero_id = TS_newliteral();
+		TS_modificar_simbolo(TS_cte_verdadero_id, TS_CTE|TS_BOOLEANO); 
+		TS_cte_val val; val.booleano = 1;
+		TS_modificar_cte(TS_cte_verdadero_id,val);
+	}
 	return TS_cte_verdadero_id;
 }
 
 int TS_cte_falso()
 {
+	if(!TS_cte_falso_id)
+	{
+		TS_cte_falso_id = TS_newliteral();
+		TS_modificar_simbolo(TS_cte_falso_id, TS_CTE|TS_BOOLEANO); 
+		TS_cte_val val; val.booleano = 0;
+		TS_modificar_cte(TS_cte_falso_id,val);
+	}
 	return TS_cte_falso_id;
 }
 
 int TS_cte_0()
 {
+	if(!TS_cte_0_id)
+	{
+		TS_cte_0_id = TS_newliteral();
+		TS_modificar_simbolo(TS_cte_0_id, TS_CTE|TS_ENTERO); 
+		TS_cte_val val; val.entero = 0;
+		TS_modificar_cte(TS_cte_0_id,val);
+	}
 	return TS_cte_0_id;
-}
-
-int TS_cte_1()
-{
-	return TS_cte_1_id;
 }
 
 

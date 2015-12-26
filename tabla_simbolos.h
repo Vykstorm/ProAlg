@@ -175,7 +175,6 @@ int TS_cte_falso();
 
 /** @return Devuelve una cte creada por la tabla de símbolos cuyo valor es 1 */
 int TS_cte_0();
-int TS_cte_1();
 
 /// Insercciones y eliminaciones en la tabla de símbolos.
 
