@@ -29,13 +29,13 @@
 	/* estructura auxiliar para valores semánticos de exp aritméticas y booleanas */
 	typedef struct C_exp_t
 	{
-		int tipo; /* es TS_REAL, TS_ENTERO o TS_BOOLEANO. */
+		int tipo; /* es TS_REAL, TS_ENTERO, TS_BOOLEANO, ... */
 		union
 		{
-			int place; /* apuntador a la tabla de símbolos (se rellenan solo cuando es real o entero  */
+			int place; /* apuntador a la tabla de símbolos  */
 			struct
 			{
-				lista true,false; /* son listas de cuadruplas (se rellenan solo cuando es booleano */
+				lista true,false; /* son listas de cuadruplas (se rellenan solo cuando es booleano) */
 			};
 		};
 	} C_exp_t;
@@ -60,7 +60,7 @@
 	pila C_lista_id; /* para listados de ids */
 	C_cte_t C_cte;	/* para la declaración de ctes */
 	TS_tipo C_registro_tipo;  /* para la declaración de tipos */
-	C_exp_t C_exp; /* para expresiones aritméticas y aritméticas */
+	C_exp_t C_exp; /* para expresiones aritméticas/lógicas/llamadas a funciones */
 	
 	int M_b; /*para reducciones por cadena vacia para las expresiones booleanas*/
 	
@@ -150,6 +150,7 @@
 %type <C_exp> exp_a
 %type <M_b> M_b
 %type <C_exp> exp_b
+%type <C_exp> expresion
 
 
 /* Indicamos la asociatividad y prioridad de los operadores */
@@ -174,7 +175,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	desc_algoritmo
+	declaracion_var asignacion T_comp_secuencial
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -207,9 +208,9 @@ declaraciones:
 	
 /* Declaraciones para expresiones */
 expresion: 
-	exp_a  
-	| exp_b 
-	| funcion_ll
+	exp_a  { $$ = $1; }
+	| exp_b { $$ = $1; }
+//	| funcion_ll
 	
 exp_a:
 	operando_a T_suma operando_a { 
@@ -404,8 +405,20 @@ M_b:
 	%empty {$$=nextquad();}
 	
 operando_b:
-	exp_b
-	| operando { if($1.tipo == TS_BOOLEANO) { $$ = $1; } else { /* error */ } }
+	exp_b { $$ = $1; }
+	| operando { 
+		if($1.tipo == TS_BOOLEANO) 
+		{ 
+			$$.tipo = $1.tipo; 					
+			$$.true = makelist(nextquad()); 
+			$$.false = makelist(nextquad()+1);  
+			gen_salto_condicional2($1.place,-1); 
+			gen_salto_incondicional(-1); 
+		} else 
+		{ 
+			/* error */ 
+		} 
+	}
 	//| funcion_ll { /* comprobar si el val. retorno es booleano */ }
 operando_a:
 	exp_a { $$ = $1; }
@@ -421,25 +434,8 @@ operando:
 		else 
 		{  
 			int tipo=TS_consultar_tipo(id); 
-			if(((tipo&0x00FF) == TS_VAR) && (((tipo&0xFF00) == TS_REAL) || ((tipo&0xFF00) == TS_ENTERO) || ((tipo&0xFF00) == TS_BOOLEANO)) ) 
-			{ 
-				$$.tipo = tipo&0xFF00; 
-				if($$.tipo != TS_BOOLEANO)
-				{
-					$$.place = id; 
-				}
-				else 
-				{
-					$$.true = makelist(nextquad()); 
-					$$.false = makelist(nextquad()+1);  
-					gen_salto_condicional2(id,-1); 
-					gen_salto_incondicional(-1);
-				}
-			} 
-			else 
-			{ 
-				/* error */ 
-			}  
+			$$.place = id;
+			$$.tipo = tipo&0xFF00; 
 		}  
 	}
 	| operando T_referencia operando 
@@ -460,8 +456,42 @@ instruccion:
 	|accion_ll
 
 asignacion:
-	operando T_asignacion expresion { }
-
+	operando T_asignacion expresion {
+		/* los tipos deben coincidir, el tipo expresión expresion sea convertible
+		 * al tipo operando. */
+		if($1.tipo == $3.tipo)
+		{
+			if($3.tipo == TS_BOOLEANO)
+			{
+				backpatch($3.true, nextquad());
+				backpatch($3.false, nextquad()+1);
+				gen_copia(TS_cte_verdadero(), $1.place);
+				gen_copia(TS_cte_falso(), $1.place);
+			}
+			else
+			{
+				gen_copia($3.place, $1.place);
+			}
+		}
+		else
+		{
+			/* tipos no coinciden */
+			/* error */
+		}
+	}
+	| operando T_asignacion operando {
+			/* comprobar si tipos coinciden */
+			if($1.tipo == $3.tipo)
+			{
+				gen_copia($3.place, $1.place);
+			}
+			else
+			{
+				/* tipos no coinciden */
+				/* error */
+			}
+		}
+	
 alternativa:
 	T_si expresion T_entonces instrucciones lista_opciones T_fsi 
 
