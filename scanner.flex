@@ -15,7 +15,7 @@
 #include "parser.tab.h"	
 #include "tabla_simbolos.h"					
 #include <stdio.h>
-
+#include "traducciones.h"
 
 %}
 
@@ -48,7 +48,12 @@ op_div "/"
 op_mod "%"
 inicio_parentesis "("
 fin_parentesis ")"
-op_rel ">"|"<"|">="|"<="|"="|"<>"
+op_rel_igual "="
+op_rel_distinto "<>"
+op_rel_mayor ">"
+op_rel_mayor_igual ">="
+op_rel_menor "<"
+op_rel_menor_igual "<="
 op_ref "."
 
 /* Definición de expresiones regulares para las palabras reservadas */
@@ -132,13 +137,20 @@ comentario \{([^\}]|\/\})*\}
 {inicio_array} { return T_inic_array; }
 {fin_array} { return T_fin_array; }
 
+	/* Reglas para operadores relacionales */
+{op_rel_mayor} { yylval.C_oprel = TR_OP_GREATER; return T_oprel; }
+{op_rel_mayor_igual} { yylval.C_oprel = TR_OP_GREATER_EQUAL; return T_oprel; }
+{op_rel_igual} { yylval.C_oprel = TR_OP_EQUAL; return T_oprel; }
+{op_rel_menor} { yylval.C_oprel = TR_OP_LOWER; return T_oprel; }
+{op_rel_menor_igual} { yylval.C_oprel = TR_OP_LOWER_EQUAL; return T_oprel; } 
+{op_rel_distinto} { yylval.C_oprel = TR_OP_NOT_EQUAL; return T_oprel; }
+
 	/* Reglas para operadores aritméticos */
 {op_suma} { return T_suma; }
 {op_resta} { return T_resta; }
 {op_mult} { return T_mult; }
 {op_div} { return T_div; }
 {op_mod} { return T_mod; }
-{op_rel} { strcpy(yylval.C_oprel, yytext); return T_oprel; }
 {inicio_parentesis} { return T_inic_parentesis; }
 {fin_parentesis} { return T_fin_parentesis; }
 	
@@ -185,6 +197,7 @@ comentario \{([^\}]|\/\})*\}
 {r_var} { return T_var; }
 {r_y} { return T_y; }
 {op_ref} { return T_referencia; }	
+	
 	
 {id} { strcpy(yylval.C_id, yytext); return T_id;}
 
