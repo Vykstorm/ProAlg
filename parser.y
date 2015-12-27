@@ -58,7 +58,7 @@
 	char C_literal_string[256];
 	int C_literal_booleano; 
 	int C_tipo_base;
-	char C_oprel[3];
+	int C_oprel; 
 	
 	
 	pila C_lista_id; /* para listados de ids */
@@ -66,7 +66,7 @@
 	TS_tipo C_registro_tipo;  /* para la declaración de tipos */
 	C_exp_t C_exp; /* para expresiones aritméticas/lógicas/llamadas a funciones */
 	C_instr_t C_instr; /* para instrucciones */
-	int M_b; /* para reducciones por cadena vacia en algunas exp. booleanas */
+	int M, N; /* para reducciones por cadena vacia (tienen como valor semántico nextquad()) */
 	
 }
 
@@ -154,36 +154,34 @@
 %type <C_exp> exp_a
 %type <C_exp> exp_b
 %type <C_exp> expresion
-%type <M_b> M_b
 %type <C_exp> condicion
 
+%type <C_instr> instrucciones
 %type <C_instr> instruccion
 %type <C_instr> asignacion
+%type <C_instr> alternativa
 
+%type <M> M
+%type <N> N
 
 /* Indicamos la asociatividad y prioridad de los operadores */
+
+// Prioridad en op. booleanos
 %left T_o
 %left T_y
 %right T_no
 
+// Prioridad en op. aritméticos. 
 %left T_suma T_resta
 %left T_mult T_div T_div_entera
 %left T_mod
 
 
 
-%right T_referencia
-%left T_ref
-
-%nonassoc T_oprel
-
-%left T_comp_secuencial
-%left T_separador
-
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	declaracion_var asignacion T_comp_secuencial
+	declaracion_var exp_b T_comp_secuencial
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -216,9 +214,10 @@ declaraciones:
 	
 /* Declaraciones para expresiones */
 expresion: 
-	exp_a  { $$ = $1; }
-	| exp_b { $$ = $1; }
+	exp_a  { $$.place = $1.place; $$.tipo = TS_consultar_tipo($1.place)&0xFF00; }
+	| exp_b { $$.true = $1.true; $$.false = $1.false; $$.tipo = TS_BOOLEANO; }
 	
+// Expresiones aritméticas
 exp_a:
 	operando_a T_suma operando_a { 
 		int T=TS_newtempvar();
@@ -396,20 +395,29 @@ exp_a:
 	| T_literal_entero { int L=TS_newliteral(); TS_modificar_simbolo(L, TS_CTE|TS_ENTERO); TS_cte_val val; val.entero=$1; TS_modificar_cte(L, val); $$.place = L; $$.tipo = TS_ENTERO;  }
 	| T_literal_real { int L=TS_newliteral(); TS_modificar_simbolo(L, TS_CTE|TS_REAL); TS_cte_val val;  val.real=$1; TS_modificar_cte(L, val); $$.place = L; $$.tipo = TS_REAL;  }
 	| T_resta operando_a { int T=TS_newtempvar(); TS_modificar_simbolo(T,TS_VAR|$2.tipo); $$.place = T; $$.tipo = $2.tipo; if($2.tipo == TS_REAL) { gen_asig_unaria($2.place, TR_OP_NEG_REAL , T); } else { gen_asig_unaria($2.place, TR_OP_NEG , T); }  }
-	| operando_a T_mod operando_a
+	| operando_a T_mod operando_a {
+		if(($1.tipo == TS_ENTERO) && ($3.tipo == TS_ENTERO))
+		{
+			int T = TS_newtempvar();
+			TS_modificar_simbolo(T,TS_VAR|TS_ENTERO);
+			gen_asig_binaria(TR_OP_MOD, $1.place, $3.place, T);
+		}
+		else
+		{
+			/* error */
+		}
+	}
 
 
 //Expresiones booleanas
 exp_b:
-	operando_b T_y M_b operando_b { backpatch($$.true, $3); $$.false = merge($1.false, $4.false); $$.true = $4.true;  }
-	| operando_b T_o M_b operando_b { backpatch($$.false, $3); $$.true = merge($1.true, $4.true); $$.false = $4.false;  } 
+	operando_b T_y M operando_b { backpatch($$.true, $3); $$.false = merge($1.false, $4.false); $$.true = $4.true;  }
+	| operando_b T_o M operando_b { backpatch($$.false, $3); $$.true = merge($1.true, $4.true); $$.false = $4.false;  } 
 	| T_no operando_b { $$.true = $2.false; $$.false = $$.true; } 
 	| T_literal_booleano {$$.true = makelist(nextquad()); $$.false = makelist(nextquad()+1); gen_salto_incondicional(-1); gen_salto_incondicional(-1); if(!$1) { lista aux = $$.false; $$.false = $$.true; $$.true = aux; }  }
-	| operando_b T_oprel operando_b {  }
+	| operando_a T_oprel operando_a { $$.true = makelist(nextquad()); $$.false = makelist(nextquad()+1); gen_salto_condicional($2, $1.place, $3.place, -1); gen_salto_incondicional(-1);   }
 	| T_inic_parentesis exp_b T_fin_parentesis { $$ = $2; }
 	
-M_b:
-	%empty {$$=nextquad();}
 	
 operando_b:
 	exp_b { $$ = $1; }
@@ -419,7 +427,7 @@ operando_b:
 			$$.tipo = $1.tipo; 					
 			$$.true = makelist(nextquad()); 
 			$$.false = makelist(nextquad()+1);  
-			gen_salto_condicional2($1.place,-1); 
+			gen_salto_condicional(TR_OP_EQUAL, $1.place, TS_cte_verdadero(), -1); 
 			gen_salto_incondicional(-1); 
 		} else 
 		{ 
@@ -451,16 +459,21 @@ operando:
 		 * donde se almacenará dicho valor */
 		}
 
+// Rutinas semánticas vacías.
+M:
+	%empty {$$=nextquad();}
+N:
+	%empty {$$=nextquad();}
 
 /* Declaración para instrucciones */
 instrucciones:
 	instrucciones T_comp_secuencial instruccion 
-	| instruccion 
+	| instruccion { $$ = $1; }
 
 instruccion:
 	T_continuar
-	| asignacion 
-	| alternativa 
+	| asignacion {  $$ = $1; }
+	| alternativa
 	| iteracion
 	|accion_ll
 
@@ -515,7 +528,7 @@ condicion:
 		{
 			$$.true = makelist(nextquad()); 
 			$$.false = makelist(nextquad()+1);  
-			gen_salto_condicional2($1.place,-1); 
+			gen_salto_condicional(TR_OP_NOT_EQUAL, $1.place, TS_cte_0(), -1); 
 			gen_salto_incondicional(-1); 
 		}
 	}
@@ -528,7 +541,7 @@ condicion:
 		{				
 			$$.true = makelist(nextquad()); 
 			$$.false = makelist(nextquad()+1);  
-			gen_salto_condicional2($1.place,-1); 
+			gen_salto_condicional(TR_OP_NOT_EQUAL, $1.place, TS_cte_0(), -1); 
 			gen_salto_incondicional(-1); 
 		}
 		else
@@ -538,12 +551,23 @@ condicion:
 	}
 	
 alternativa:
-	T_si expresion T_entonces instrucciones lista_opciones T_fsi 
+	T_si condicion T_entonces instrucciones lista_opciones T_fsi { }
+	| T_si condicion T_entonces M instrucciones T_fsi {
+		backpatch($2.true, $4);
+		if(!empty($5.next))
+			$$.next = merge($2.false, $5.next);
+		else
+		{
+			$$.next = merge($2.false, makelist(nextquad()));
+			gen_salto_incondicional(-1);
+		}
+	}
 
 lista_opciones:
-	T_si_no_si expresion T_entonces instrucciones lista_opciones 
-	|
-
+	//T_si_no_si condicion T_entonces instrucciones lista_opciones {
+	//}
+	| T_si_no_si condicion T_entonces instrucciones {
+	}
 iteracion:
 	it_cota_fija
 	| it_cota_exp
@@ -604,7 +628,7 @@ literal:
 lista_de_var:
 	lista_id T_def_tipo_variable T_id T_comp_secuencial lista_de_var { while(!pila_vacia($1)) { TS_modificar_var(desapilar($1), $3); } }
 	| lista_id T_def_tipo_variable dd_tipo T_comp_secuencial lista_de_var { while(!pila_vacia($1)) { TS_modificar_simbolo(desapilar($1), TS_VAR | $3); } } 
-	|
+	| %empty
 lista_id:
 	T_id T_separador lista_id { apilar($3, TS_insertar_simbolo($1)); $$ = $3; }
 	| T_id { $$ = crear_pila(); apilar($$, TS_insertar_simbolo($1)); }
