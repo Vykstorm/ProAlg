@@ -66,7 +66,7 @@
 	TS_tipo C_registro_tipo;  /* para la declaración de tipos */
 	C_exp_t C_exp; /* para expresiones aritméticas/lógicas/llamadas a funciones */
 	C_instr_t C_instr; /* para instrucciones */
-	int M, N; /* para reducciones por cadena vacia (tienen como valor semántico nextquad()) */
+	int E; /* para reducciones por cadena vacia (tienen como valor semántico nextquad()) */
 	
 }
 
@@ -160,9 +160,11 @@
 %type <C_instr> instruccion
 %type <C_instr> asignacion
 %type <C_instr> alternativa
+%type <C_instr> lista_opciones
+%type <C_instr> P
 
-%type <M> M
-%type <N> N
+%type <E> M
+%type <E> N
 
 /* Indicamos la asociatividad y prioridad de los operadores */
 
@@ -181,12 +183,13 @@
 %left T_mult T_div T_div_entera
 %left T_mod
 
+// Prioridad para resolver el problema del "else"
 
 
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	declaracion_var exp_a T_comp_secuencial
+	desc_algoritmo
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -476,11 +479,11 @@ instrucciones:
 	| instruccion { $$ = $1; }
 
 instruccion:
-	T_continuar
-	| asignacion {  $$ = $1; }
-	| alternativa
-	| iteracion
-	|accion_ll
+	//T_continuar
+	asignacion {  $$ = $1; }
+	| alternativa { backpatch($1.next, 50); }
+	//| iteracion
+	//|accion_ll
 
 asignacion:
 	operando T_asignacion expresion {
@@ -556,7 +559,11 @@ condicion:
 	}
 	
 alternativa:
-	T_si condicion T_entonces instrucciones lista_opciones T_fsi { }
+	T_si condicion T_entonces M instrucciones P N lista_opciones T_fsi { 
+		backpatch($2.true, $4);
+		backpatch($2.false, $7);
+		$$.next = merge($5.next, merge($6.next, $8.next));
+	}
 	| T_si condicion T_entonces M instrucciones T_fsi {
 		backpatch($2.true, $4);
 		if(!empty($5.next))
@@ -565,13 +572,27 @@ alternativa:
 		{
 			$$.next = merge($2.false, makelist(nextquad()));
 			gen_salto_incondicional(-1);
-		}
+		} 
 	}
+P:
+	%empty { $$.next = makelist(nextquad()); gen_salto_incondicional(-1); }
+	
 
 lista_opciones:
-	//T_si_no_si condicion T_entonces instrucciones lista_opciones {
-	//}
-	| T_si_no_si condicion T_entonces instrucciones {
+	T_si_no_si condicion T_entonces M instrucciones P N lista_opciones {
+		backpatch($2.true, $4);
+		backpatch($2.false, $7);
+		$$.next = merge($5.next, merge($6.next, $8.next));
+	}
+	| T_si_no_si condicion T_entonces M instrucciones {
+		backpatch($2.true, $4);
+		if(!empty($5.next))
+			$$.next = merge($2.false, $5.next);
+		else 
+		{
+			$$.next = merge($2.false, makelist(nextquad()));
+			gen_salto_incondicional(-1);
+		}
 	}
 iteracion:
 	it_cota_fija
