@@ -61,6 +61,11 @@ lista makelistempty()
 	return crear_cola();
 }
 
+int empty(lista L)
+{
+	return cola_vacia(L);
+}
+
 
 lista merge(lista L1,lista L2)
 {
@@ -304,6 +309,9 @@ void print_cuadrupla(TR_cuadrupla q)
 		break;
 		case TR_OP_DIV:
 			printf("%s := %s div %s (entera)", print_var(q.res), print_var(q.ops[0]), print_var(q.ops[1]));
+		break;
+		case TR_OP_MOD:
+			printf("%s := %s %% %s", print_var(q.res), print_var(q.ops[0]), print_var(q.ops[1]));
 		break;
 		case TR_OP_SHIFT_LEFT:
 			printf("%s := %s << %s", print_var(q.res), print_var(q.ops[0]), print_var(q.ops[1]));

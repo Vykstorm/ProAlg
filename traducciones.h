@@ -39,7 +39,8 @@ typedef enum TR_operador
 	TR_OP_DIV = 0x0013 | 1<<15,
 	TR_OP_SHIFT_LEFT = 0x0014 | 1<<15,	   /* operacion para move bits hacia la izquierda. Es equivalente a multiplicar por potencias 2 */
 	TR_OP_SHIFT_RIGHT = 0x0015 | 1<<15,	   /* igual que la anterior, pero a la derecha. Igual que dividir por potencias de 2 */
-	TR_OP_NEG = 0x0016,
+	TR_OP_MOD = 0x0016 | 1<<15,
+	TR_OP_NEG = 0x0017,
 
 	/* aritmética en coma flotante */
 	TR_OP_SUMA_REAL = 0x0020 | 1<<15,
@@ -109,6 +110,9 @@ void backpatch(lista L, int quad);
 
 // Genera una lista vacía
 lista makelistempty();
+
+// Comprueba si la lista está vacía
+int empty(lista L);
 
 /* Los siguientes métodos crean cuadruplas correspondientes a cada uno de los tipos de instrucciones,
  * y llaman a gen, para guardarla en el fichero de cuadruplas */
