@@ -166,10 +166,15 @@
 
 /* Indicamos la asociatividad y prioridad de los operadores */
 
+// Asociatividad en op. de referencia 
+%left T_referencia
+%left T_inic_array
+%left T_ref
+
 // Prioridad en op. booleanos
-%left T_o
 %left T_y
-%right T_no
+%left T_o
+%left T_no
 
 // Prioridad en op. aritméticos. 
 %left T_suma T_resta
@@ -181,7 +186,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	declaracion_var exp_b T_comp_secuencial
+	declaracion_var exp_a T_comp_secuencial
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -411,8 +416,8 @@ exp_a:
 
 //Expresiones booleanas
 exp_b:
-	operando_b T_y M operando_b { backpatch($$.true, $3); $$.false = merge($1.false, $4.false); $$.true = $4.true;  }
-	| operando_b T_o M operando_b { backpatch($$.false, $3); $$.true = merge($1.true, $4.true); $$.false = $4.false;  } 
+	operando_b T_y M operando_b { printf("exp_b y\n"); backpatch($$.true, $3); $$.false = merge($1.false, $4.false); $$.true = $4.true;  }
+	| operando_b T_o M operando_b { printf("exp_ o\n"); backpatch($$.false, $3); $$.true = merge($1.true, $4.true); $$.false = $4.false;  } 
 	| T_no operando_b { $$.true = $2.false; $$.false = $$.true; } 
 	| T_literal_booleano {$$.true = makelist(nextquad()); $$.false = makelist(nextquad()+1); gen_salto_incondicional(-1); gen_salto_incondicional(-1); if(!$1) { lista aux = $$.false; $$.false = $$.true; $$.true = aux; }  }
 	| operando_a T_oprel operando_a { $$.true = makelist(nextquad()); $$.false = makelist(nextquad()+1); gen_salto_condicional($2, $1.place, $3.place, -1); gen_salto_incondicional(-1);   }
