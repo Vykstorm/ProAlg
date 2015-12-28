@@ -67,7 +67,7 @@
 	C_exp_t C_exp; /* para expresiones aritméticas/lógicas/llamadas a funciones */
 	C_instr_t C_instr; /* para instrucciones */
 	int E; /* para reducciones por cadena vacia (tienen como valor semántico nextquad()) */
-	
+	int V; /* se usa en la estructura iterativa de cota fija, para almacenar la id de la variable de control */
 }
 
 /* Asociamos identificadores de tokens de bison a campos de yystype */
@@ -155,11 +155,16 @@
 %type <C_exp> exp_b
 %type <C_exp> expresion
 %type <C_exp> condicion
+%type <C_exp> expresion_f
 
 %type <C_instr> instrucciones
 %type <C_instr> instruccion
 %type <C_instr> asignacion
 %type <C_instr> alternativa
+%type <C_instr> iteracion
+%type <C_instr> it_cota_exp
+%type <C_instr> it_cota_fija
+%type <V> it_cota_fija_c
 %type <C_instr> lista_opciones
 %type <C_instr> P
 
@@ -189,7 +194,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	desc_algoritmo
+	declaracion_var instruccion T_comp_secuencial
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -454,6 +459,8 @@ operando:
 		} 
 		else 
 		{  
+			/* también hay que comprobar si es una cte o una variable */
+			
 			int tipo=TS_consultar_tipo(id); 
 			$$.place = id;
 			$$.tipo = tipo&0xFF00; 
@@ -472,6 +479,9 @@ M:
 	%empty {$$=nextquad();}
 N:
 	%empty {$$=nextquad();}
+P:
+	%empty { $$.next = makelist(nextquad()); gen_salto_incondicional(-1); }
+	
 
 /* Declaración para instrucciones */
 instrucciones:
@@ -482,7 +492,7 @@ instruccion:
 	//T_continuar
 	asignacion {  $$ = $1; }
 	| alternativa { backpatch($1.next, 50); }
-	//| iteracion
+	| iteracion { backpatch($1.next, 50); }
 	//|accion_ll
 
 asignacion:
@@ -574,9 +584,7 @@ alternativa:
 			gen_salto_incondicional(-1);
 		} 
 	}
-P:
-	%empty { $$.next = makelist(nextquad()); gen_salto_incondicional(-1); }
-	
+
 
 lista_opciones:
 	T_si_no_si condicion T_entonces M instrucciones P N lista_opciones {
@@ -586,25 +594,78 @@ lista_opciones:
 	}
 	| T_si_no_si condicion T_entonces M instrucciones {
 		backpatch($2.true, $4);
+		/*
 		if(!empty($5.next))
 			$$.next = merge($2.false, $5.next);
 		else 
 		{
 			$$.next = merge($2.false, makelist(nextquad()));
 			gen_salto_incondicional(-1);
-		}
+		}*/
+		$$.next = merge($2.false, $5.next);
 	}
 iteracion:
-	it_cota_fija
-	| it_cota_exp
+	it_cota_fija { $$ = $1; }
+	| it_cota_exp { $$ = $1; }
 
 it_cota_exp:
-	T_mientras expresion T_hacer instrucciones T_fmientras 
-
-it_cota_fija:
-	T_para T_id T_asignacion expresion T_hasta expresion T_hacer instrucciones T_fpara 
+	T_mientras M expresion T_hacer N instrucciones T_fmientras {
+		backpatch($3.true, $5);
+		if(!empty($6.next))
+			backpatch($6.next, $2);
+		else
+			gen_salto_incondicional($2);
+		$$.next = $3.false;
+	}
+	
+	
+expresion_f:
+	| expresion { 
+		if($1.tipo == TS_ENTERO)
+			$$ = $1;
+		else
+		{
+			/* error. */
+		}
+	}
+	| operando {
+		if($1.tipo == TS_ENTERO)
+			$$ = $1;
+		else
+		{
+			/* error */
+		}
+	}
 	
 
+it_cota_fija_c:
+	T_para T_id T_asignacion expresion_f T_hasta expresion_f T_hacer { 
+		/* inicializar variable de control & comparar variable de control con cota */
+		
+		/* comprobar variable de control */
+		int v;
+		if((v=TS_buscar_simbolo($2)) == -1)
+		{
+			/* error */
+		}
+		else if(TS_consultar_tipo(v) != (TS_ENTERO | TS_VAR))
+		{
+			/* error */
+		}
+		
+		gen_copia($4.place, v);
+		gen_salto_condicional(TR_OP_GREATER, v, $6.place, -1);
+		$$ = v;
+	}
+
+it_cota_fija:
+	M it_cota_fija_c instrucciones T_fpara {
+		backpatch($3.next, nextquad());
+		gen_asig_binaria(TR_OP_SUMA, $2, TS_cte_1(), $2);
+		gen_salto_incondicional($1+1);
+		$$.next = makelist($1+1);
+	}
+	
 
 /* Declaraciones */
 declaracion_tipo:
