@@ -194,7 +194,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	declaracion_var instruccion T_comp_secuencial
+	declaracion_var instrucciones
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -424,8 +424,8 @@ exp_a:
 
 //Expresiones booleanas
 exp_b:
-	operando_b T_y M operando_b { printf("exp_b y\n"); backpatch($$.true, $3); $$.false = merge($1.false, $4.false); $$.true = $4.true;  }
-	| operando_b T_o M operando_b { printf("exp_ o\n"); backpatch($$.false, $3); $$.true = merge($1.true, $4.true); $$.false = $4.false;  } 
+	operando_b T_y M operando_b {  backpatch($$.true, $3); $$.false = merge($1.false, $4.false); $$.true = $4.true;  }
+	| operando_b T_o M operando_b { backpatch($$.false, $3); $$.true = merge($1.true, $4.true); $$.false = $4.false;  } 
 	| T_no operando_b { $$.true = $2.false; $$.false = $$.true; } 
 	| T_literal_booleano {$$.true = makelist(nextquad()); $$.false = makelist(nextquad()+1); gen_salto_incondicional(-1); gen_salto_incondicional(-1); if(!$1) { lista aux = $$.false; $$.false = $$.true; $$.true = aux; }  }
 	| operando_a T_oprel operando_a { $$.true = makelist(nextquad()); $$.false = makelist(nextquad()+1); gen_salto_condicional($2, $1.place, $3.place, -1); gen_salto_incondicional(-1);   }
@@ -485,14 +485,19 @@ P:
 
 /* Declaración para instrucciones */
 instrucciones:
-	instrucciones T_comp_secuencial instruccion 
-	| instruccion { $$ = $1; }
+	instrucciones T_comp_secuencial M instruccion { 
+		backpatch($1.next, $3);
+		$$ = $4;
+	}
+	| instruccion { 
+		$$ = $1; 
+	}
 
 instruccion:
 	//T_continuar
 	asignacion {  $$ = $1; }
-	| alternativa { backpatch($1.next, 50); }
-	| iteracion { backpatch($1.next, 50); }
+	| alternativa { $$ = $1; }
+	| iteracion { $$ = $1; }
 	//|accion_ll
 
 asignacion:
@@ -594,15 +599,13 @@ lista_opciones:
 	}
 	| T_si_no_si condicion T_entonces M instrucciones {
 		backpatch($2.true, $4);
-		/*
 		if(!empty($5.next))
 			$$.next = merge($2.false, $5.next);
 		else 
 		{
 			$$.next = merge($2.false, makelist(nextquad()));
 			gen_salto_incondicional(-1);
-		}*/
-		$$.next = merge($2.false, $5.next);
+		}
 	}
 iteracion:
 	it_cota_fija { $$ = $1; }
