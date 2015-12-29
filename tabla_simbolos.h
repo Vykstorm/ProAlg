@@ -177,6 +177,13 @@ int TS_cte_falso();
 int TS_cte_0();
 int TS_cte_1();
 
+/**
+ * Busca un símbolo por nombre.
+ * @return Devuelve -1 si no hay ningún símbolo con ese nombre, o la id del símbolo si existe.
+ */
+int TS_buscar_simbolo(const char* nombre);
+
+
 /// Insercciones y eliminaciones en la tabla de símbolos.
 
 
@@ -225,7 +232,6 @@ void TS_modificar_cte(int id, TS_cte_val val);
 void TS_modificar_var(int id_var, const char* nombre_tipo);
 
 
-
 /**
  * Crea una nueva variable temporal en la tabla de símbolos.
  * @return Devuelve la id de la nueva variable temporal.
@@ -239,10 +245,21 @@ int TS_newtempvar();
 int TS_newliteral();
 
 /**
- * Busca un símbolo por nombre.
- * @return Devuelve -1 si no hay ningún símbolo con ese nombre, o la id del símbolo si existe.
+ * Crea un nuevo tipo en la tabla de símbolos.
+ * @return Devuelve su id.
  */
-int TS_buscar_simbolo(const char* nombre);
+int TS_newtipo();
+
+
+/**
+ * Modifica el nombre de un símbolo.
+ * @param id La id del símbolo.
+ * @param nombre Su nuevo nombre.
+ */
+void TS_renombrar_simbolo(int id, const char* nombre);
+
+
+/////////// Depuración de la tabla de símbolos
 
 /**
  * Imprime información en la salida estándar de la tabla de símbolos 

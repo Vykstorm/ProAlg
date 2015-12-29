@@ -165,6 +165,28 @@ int TS_newliteral()
 	return sim.id;
 }
 
+int TS_newtipo()
+{
+	/* creamos el símbolo */
+	TS_simbolo sim;
+	sim.id = TS_contador_id++;
+	sim.tipo = TS_UNKNOWN;
+	sprintf(sim.nombre, "tipo_%d", sim.id);
+	lista_insertar_cola(simbolos, (void*)&sim);
+	TS_modificar_registro((TS_simbolo*)lista_cola(simbolos), TS_TIPO);
+	return sim.id;
+}
+
+void TS_renombrar_simbolo(int id, const char* nombre)
+{
+	TS_simbolo* sim;
+	sim = TS_buscar_simbolo_por_id(id);
+	assert(sim != NULL);
+	
+	/* modificamos el nombre */
+	strcpy(sim->nombre, nombre);
+}
+
 int TS_cte_verdadero()
 {
 	if(!TS_cte_verdadero_id)
