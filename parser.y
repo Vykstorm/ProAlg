@@ -195,7 +195,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	declaraciones
+	declaraciones asignacion T_comp_secuencial
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -507,6 +507,13 @@ instruccion:
 asignacion:
 	operando T_asignacion expresion {
 		$$.next = makelistempty();
+		
+		/* la parte izquierda de la asignación debe ser una variable */
+		if((TS_consultar_tipo($1.place)&0x00FF) != TS_VAR)
+		{
+			/* error */
+		}
+		
 		/* los tipos deben coincidir, o el tipo expresión expresion sea convertible
 		 * al tipo operando. */
 		if($1.tipo == $3.tipo)
@@ -530,19 +537,25 @@ asignacion:
 		}
 	}
 	| operando T_asignacion operando {
-			$$.next = makelistempty();
+		$$.next = makelistempty();
 			
-			/* comprobar si tipos coinciden */
-			if($1.tipo == $3.tipo)
-			{
-				gen_copia($3.place, $1.place);
-			}
-			else
-			{
-				/* tipos no coinciden */
-				/* error */
-			}
+		/* la parte izquierda de la asignación debe ser una variable */
+		if((TS_consultar_tipo($1.place)&0x00FF) != TS_VAR)
+		{
+			/* error */
 		}
+			
+		/* comprobar si tipos coinciden */
+		if($1.tipo == $3.tipo)
+		{
+			gen_copia($3.place, $1.place);
+		}
+		else
+		{
+			/* tipos no coinciden */
+			/* error */
+		}
+	}
 		
 /* este no terminal representa una condición */
 condicion:
