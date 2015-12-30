@@ -45,6 +45,7 @@
 	{
 		lista next; 
 	} C_instr_t;
+	
 }
 
 /* Definición de yystype. Contiene los campos con los que podemos suministrar
@@ -63,7 +64,7 @@
 	
 	pila C_lista_id; /* para listados de ids */
 	C_cte_t C_cte;	/* para la declaración de ctes */
-	TS_tipo C_registro_tipo;  /* para la declaración de tipos */
+	int C_tipo;  /* para la declaración de tipos */
 	C_exp_t C_exp; /* para expresiones aritméticas/lógicas/llamadas a funciones */
 	C_instr_t C_instr; /* para instrucciones */
 	int E; /* para reducciones por cadena vacia (tienen como valor semántico nextquad()) */
@@ -92,6 +93,7 @@
 %token T_fin_array
 
 %token T_suma
+
 %token T_resta
 %token T_div
 %token T_mult
@@ -144,7 +146,8 @@
 
 /* Asociamos no terminales a campos de la unión */
 %type <C_lista_id> lista_id
-%type <C_tipo_base> dd_tipo
+%type <C_tipo> d_tipo
+%type <C_tipo> dd_tipo
 %type <C_cte> literal
 %type <C_cte> constante
 
@@ -188,13 +191,11 @@
 %left T_mult T_div T_div_entera
 %left T_mod
 
-// Prioridad para resolver el problema del "else"
-
 
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	declaracion_var instrucciones
+	declaraciones
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -460,8 +461,8 @@ operando:
 		else 
 		{  
 			/* también hay que comprobar si es una cte o una variable */
-			
 			int tipo=TS_consultar_tipo(id); 
+			
 			$$.place = id;
 			$$.tipo = tipo&0xFF00; 
 		}  
@@ -494,10 +495,10 @@ instrucciones:
 	}
 
 instruccion:
-	//T_continuar
 	asignacion {  $$ = $1; }
 	| alternativa { $$ = $1; }
 	| iteracion { $$ = $1; }
+	//| T_continuar
 	//|accion_ll
 
 asignacion:
@@ -623,7 +624,7 @@ it_cota_exp:
 	
 	
 expresion_f:
-	| expresion { 
+	expresion { 
 		if($1.tipo == TS_ENTERO)
 			$$ = $1;
 		else
@@ -680,18 +681,37 @@ declaracion_var:
 
 /* Declaraciones de tipos */	
 lista_de_tipo:
-	T_id T_creacion_tipo dd_tipo T_comp_secuencial lista_de_tipo
+	T_id T_creacion_tipo d_tipo T_comp_secuencial lista_de_tipo {
+		
+	}
 
 d_tipo:
-	T_id
-	| dd_tipo
+	T_id { 
+		/* comprobar que existe este tipo en la TS */	
+	
+	}
+	| dd_tipo {
+		$$ = $1;
+	}
 
 dd_tipo:
-	T_tupla lista_campos T_ftupla { $$ = TS_TUPLA; }
-	| T_tabla T_inic_array expresion_t T_subrango expresion_t T_fin_array T_de d_tipo { $$ = TS_TABLA; } 
-	|  expresion_t T_subrango expresion_t { $$ = TS_UNKNOWN; }
-	| T_ref d_tipo { $$ = TS_PUNTERO; }
-	| T_tipo_base { $$ = $1; }	
+	T_tupla lista_campos T_ftupla { 
+		/* insertar nuevo tipo tupla en TS*/
+	}
+	| T_tabla T_inic_array expresion_t T_subrango expresion_t T_fin_array T_de d_tipo {
+		/* insertar nuevo tipo tabla en TS */
+	} 
+	|  expresion_t T_subrango expresion_t {
+		/* insertar nuevo tipo subrango en TS */
+	}
+	| T_ref d_tipo {
+		/* insertar nuevo tipo ptro en TS */
+	}
+	| T_tipo_base {
+		/* insertar nuevo tipo base en TS */
+
+		$$ = $1;
+	}	
 
 expresion_t:
 	expresion 
