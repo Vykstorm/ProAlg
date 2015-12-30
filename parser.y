@@ -462,7 +462,10 @@ operando:
 		{  
 			/* también hay que comprobar si es una cte o una variable */
 			int tipo=TS_consultar_tipo(id); 
-			
+			if(((tipo&0x00FF) != TS_VAR) && ((tipo&0x00FF) != TS_CTE))
+			{
+				/* error */
+			}
 			$$.place = id;
 			$$.tipo = tipo&0xFF00; 
 		}  
