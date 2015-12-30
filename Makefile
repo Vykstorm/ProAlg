@@ -39,7 +39,7 @@ else
 endif
 
 ifeq ($(parser_debug),yes)
-	parser = parser_debug.y
+	parser = parser.y
 	bison_options += -v
 else
 	parser = parser.y
@@ -64,14 +64,6 @@ modulos = tabla_simbolos.c traducciones.c $(shell find util -name "*.c")
 
 all: proalg
 
-parser_debug.y: parser.y
-	cat parser.y | grep -n '%%' | head -n 1 | sed 's/\([0-9]*\):%%/\1/g' | xargs head parser.y -n > parser_debug.y
-	cat parser.y | grep -n '%%' | tail -n 1 | sed 's/\([0-9]*\):%%/\1/g' | xargs head parser.y -n | head -n -1 > parser_debug2.y
-	cat parser_debug2.y | grep -n '%%' | head -n 1 | sed 's/\([0-9]*\):%%/+\1/g' | xargs tail parser_debug2.y -n | tail -n +2 |  sed 's/\([^a-zA-Z_]\)T_\([a-zA-Z_]*\)/\1Tr_\2/g' >> parser_debug.y && 	rm -f parser_debug2.y
-	cat parser.y | grep %token | sed 's/%token[ ]*T_\([a-zA-Z_]*\)/T_\1/g' | sed 's/%token[ ]*<[^>]*>[ ]*T_\([a-zA-Z_]*\)/T_\1/g' | sed 's/T_\([A-Za-z_]*\)/Tr_\1:\n\tT_\1 { printf(\"shift: %s\\n\", \"T_\1\"); }/g' >> parser_debug.y 	
-	cat parser.y | grep -n '%%' | tail -n 1 | sed 's/\([0-9]*\):%%/+\1/g' | xargs tail parser.y -n >> parser_debug.y
-	sed -i.bak 's/%token[ ]*<\([^>]*\)>[ ]*T_\(.*\)/%token <\1> T_\2\n%type <\1> Tr_\2/g' parser_debug.y && rm -f parser_debug.y.bak
-	
 parser.c: $(parser)
 	bison --defines=parser.tab.h -o $@ $< $(bison_options)
 
@@ -88,5 +80,5 @@ proalg: parser.c scanner.c $(modulos)
 	
 clean: 
 	rm -f proalg parser.c scanner.c parser.tab.h
-	rm -f scanner_debug.flex parser_debug.y parser.output
+	rm -f scanner_debug.flex parser.output
  
