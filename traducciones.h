@@ -97,6 +97,8 @@ typedef struct TR_cuadrupla
  * en notación postfija (se guarda al final del fichero)
  */
 void gen(TR_cuadrupla q);
+
+// Devuelve el índice de la siguiente cuadrupla que se va ha generar
 int nextquad();
 
 //Devuelve una lista con un único valor, el que se le pasa como parametro

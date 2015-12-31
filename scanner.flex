@@ -16,7 +16,8 @@
 #include "tabla_simbolos.h"					
 #include <stdio.h>
 #include "traducciones.h"
-
+#include "errores.h"
+int line_number = 0;
 %}
 
 /* Definición de las expresiones regulares */
@@ -24,7 +25,6 @@
 /* Algunas expresiones regulares básicas */
 letra [A-Za-z]
 digito [0-9]
-delim [ \t\n]
 id {letra}({letra}|{digito})*
 
 /* Expresiones regulares para algunos operadores */
@@ -114,10 +114,13 @@ comentario \{([^\}]|\/\})*\}
 
 %%
 	/* Zona de definición de reglas */
-{delim} {  } 
+	
+	/* Reglas para delimitadores */
+\t { }
+\n { line_number++; }  // incrementamos el contador de líneas
 
 	/* Reglas para literales */
-{literal_entero} { yylval.C_literal_entero=atoi(yytext);return T_literal_entero;}
+{literal_entero} { yylval.C_literal_entero=atoi(yytext);return T_literal_entero; }
 {literal_real} {yylval.C_literal_real=atof(yytext); return T_literal_real; }
 {literal_caracter} { yylval.C_literal_caracter = yytext[1]; return T_literal_caracter;}
 {literal_string} { strncpy(yylval.C_literal_string, yytext+1, strlen(yytext)-2);  return T_literal_string; }

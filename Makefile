@@ -60,7 +60,7 @@ ifeq ($(tr_debug),yes)
 endif
 
 
-modulos = tabla_simbolos.c traducciones.c $(shell find util -name "*.c")
+modulos = tabla_simbolos.c traducciones.c errores.c $(shell find util -name "*.c")
 
 all: proalg
 

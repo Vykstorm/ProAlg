@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "tabla_simbolos.h"
+#include "errores.h"
 
 %}
 
@@ -195,7 +196,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	declaraciones asignacion T_comp_secuencial
+	declaraciones instruccion T_comp_secuencial
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -366,7 +367,14 @@ exp_a:
 		}
 		else
 		{
-			/* error */
+			if($1.tipo != TS_ENTERO)
+			{
+				PARSE_ERROR(E_OPERANDO_NO_VALIDO, $1.place);
+			}
+			else
+			{
+				PARSE_ERROR(E_OPERANDO_NO_VALIDO, $3.place);
+			}	
 		}
 	} 
 	| operando_a T_div operando_a { 
@@ -418,7 +426,14 @@ exp_a:
 		}
 		else
 		{
-			/* error */
+			if($1.tipo != TS_ENTERO)
+			{
+				PARSE_ERROR(E_OPERANDO_NO_VALIDO, $1.place);
+			}
+			else
+			{
+				PARSE_ERROR(E_OPERANDO_NO_VALIDO, $3.place);
+			}
 		}
 	}
 
@@ -446,17 +461,19 @@ operando_b:
 		} else 
 		{ 
 			/* error */ 
+			PARSE_ERROR(E_OPERANDO_NO_VALIDO, $1.place);
 		} 
 	}
 operando_a:
 	exp_a { $$ = $1; }
-	| operando { if(($1.tipo == TS_REAL) || ($1.tipo == TS_ENTERO)) { $$ = $1; } else { /* error */ } }
+	| operando { if(($1.tipo == TS_REAL) || ($1.tipo == TS_ENTERO)) { $$ = $1; } else { PARSE_ERROR(E_OPERANDO_NO_VALIDO, $1.place);  } }
 operando:
 	T_id  { 
 		int id; 
 		if((id=TS_buscar_simbolo($1)) == -1) 
 		{ 
 			/* error */ 
+			PARSE_ERROR(E_SIMBOLO_NO_DEFINIDO, $1);
 		} 
 		else 
 		{  
@@ -465,6 +482,7 @@ operando:
 			if(((tipo&0x00FF) != TS_VAR) && ((tipo&0x00FF) != TS_CTE))
 			{
 				/* error */
+				PARSE_ERROR(E_OPERANDO_NO_VALIDO, id);
 			}
 			$$.place = id;
 			$$.tipo = tipo&0xFF00; 
@@ -511,7 +529,7 @@ asignacion:
 		/* la parte izquierda de la asignación debe ser una variable */
 		if((TS_consultar_tipo($1.place)&0x00FF) != TS_VAR)
 		{
-			/* error */
+			PARSE_ERROR(E_OPERANDO_NO_VALIDO, $1.place);
 		}
 		
 		/* los tipos deben coincidir, o el tipo expresión expresion sea convertible
@@ -532,8 +550,7 @@ asignacion:
 		}
 		else
 		{
-			/* tipos no coinciden */
-			/* error */
+			PARSE_ERROR(E_CONVERSION_NO_VALIDA);
 		}
 	}
 	| operando T_asignacion operando {
@@ -542,18 +559,18 @@ asignacion:
 		/* la parte izquierda de la asignación debe ser una variable */
 		if((TS_consultar_tipo($1.place)&0x00FF) != TS_VAR)
 		{
-			/* error */
+			PARSE_ERROR(E_MODIFICANDO_CTE,$1.place);
 		}
 			
-		/* comprobar si tipos coinciden */
+		/* comprobar si tipos coinciden (Si son tipos estructurados, hay que 
+		 * llevar a cabo comprobaciones adicionales) */
 		if($1.tipo == $3.tipo)
 		{
 			gen_copia($3.place, $1.place);
 		}
 		else
 		{
-			/* tipos no coinciden */
-			/* error */
+			PARSE_ERROR(E_CONVERSION_NO_VALIDA);
 		}
 	}
 		
@@ -586,7 +603,7 @@ condicion:
 		}
 		else
 		{
-			/* error */
+			PARSE_ERROR(E_OPERANDO_NO_VALIDO, $1.place);
 		}
 	}
 	
@@ -645,7 +662,7 @@ expresion_f:
 			$$ = $1;
 		else
 		{
-			/* error. */
+			PARSE_ERROR(E_OPERANDO_NO_VALIDO, $1.place);
 		}
 	}
 	| operando {
@@ -653,7 +670,7 @@ expresion_f:
 			$$ = $1;
 		else
 		{
-			/* error */
+			PARSE_ERROR(E_OPERANDO_NO_VALIDO, $1.place);
 		}
 	}
 	
@@ -666,11 +683,11 @@ it_cota_fija_c:
 		int v;
 		if((v=TS_buscar_simbolo($2)) == -1)
 		{
-			/* error */
+			PARSE_ERROR(E_SIMBOLO_NO_DEFINIDO, $2);
 		}
 		else if(TS_consultar_tipo(v) != (TS_ENTERO | TS_VAR))
 		{
-			/* error */
+			PARSE_ERROR(E_OPERANDO_NO_VALIDO, v);
 		}
 		
 		gen_copia($4.place, v);
@@ -826,17 +843,16 @@ l_ll:
 		}
 		return m;
 	}
+		
+	/* Rutina principal */
+	int main(int argc,char ** argv)
+	{
+		TS_inicializar();
+		yyparse();
+		TS_liberar();
+	}
 	
-	/* Definición de procedimientos auxiliares */
-int yyerror(const char* s) /* Error de parseo */
-{
-	printf("error de parseo: %s\n",s);
-}
-/* Rutina principal */
-int main(int argc,char ** argv)
-{
-	TS_inicializar();
-	yyparse();
-	TS_liberar();
-}
-
+	int yyerror(const char* s)
+	{
+		printf("error de parseo(linea %d): %s\n", line_number, s);
+	}
