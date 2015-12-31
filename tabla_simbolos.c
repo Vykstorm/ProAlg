@@ -133,6 +133,13 @@ int TS_consultar_tipo(int id)
 	return tipo;
 }
 
+const char* TS_consultar_nombre(int id)
+{
+	TS_simbolo* sim=TS_buscar_simbolo_por_id(id);
+	assert(sim!=NULL);
+	return sim->nombre;
+}
+
 TS_cte_val TS_consultar_cte(int id)
 {
 	TS_simbolo* sim;

@@ -158,6 +158,11 @@ void TS_liberar();
  */
 int TS_consultar_tipo(int id);
 
+/**
+ * @return Devuelve el nombre del símbolo
+ */
+const char* TS_consultar_nombre(int id);
+
 
 /**
  * @return Devuelve el valor de una cte que está en la tabla de símbolos.
