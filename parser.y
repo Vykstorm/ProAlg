@@ -558,7 +558,25 @@ asignacion:
 		}
 		else
 		{
-			PARSE_ERROR(E_CONVERSION_NO_VALIDA);
+			/* puede que los tipos de ambos operandos sean compatibles, en tal
+			 * caso hacemos una conversión de tipos implicita */
+			if((($1.tipo == TS_ENTERO) && ($3.tipo == TS_REAL)) || (($1.tipo == TS_REAL) && ($3.tipo == TS_ENTERO)))
+			{
+				/* reales y enteros compatibles */
+				int T;
+				if($1.tipo == TS_ENTERO)
+				{
+					gen_asig_unaria(TR_OP_REAL_TO_INT, $3.place, $1.place);
+				}
+				else
+				{
+					gen_asig_unaria(TR_OP_INT_TO_REAL, $3.place, $1.place);
+				}
+			}
+			else 
+			{
+				PARSE_ERROR(E_CONVERSION_NO_VALIDA);
+			}
 		}
 	}
 	| operando T_asignacion operando {
@@ -578,7 +596,22 @@ asignacion:
 		}
 		else
 		{
-			PARSE_ERROR(E_CONVERSION_NO_VALIDA);
+			if((($1.tipo == TS_ENTERO) && ($3.tipo == TS_REAL)) || (($1.tipo == TS_REAL) && ($3.tipo == TS_ENTERO)))
+			{
+				int T;
+				if($1.tipo == TS_ENTERO)
+				{
+					gen_asig_unaria(TR_OP_REAL_TO_INT, $3.place, $1.place);
+				}
+				else
+				{
+					gen_asig_unaria(TR_OP_INT_TO_REAL, $3.place, $1.place);
+				}
+			}
+			else
+			{
+				PARSE_ERROR(E_CONVERSION_NO_VALIDA);
+			}
 		}
 	}
 		
