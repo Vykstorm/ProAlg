@@ -1,0 +1,33 @@
+algoritmo foo
+{ Ejemplo con varias estructuras alternativas }
+var 
+	m,p,q : entero;
+	g,h : real;
+	a,b : booleano;
+fvar;
+
+si m > p ->
+	g := h
+fsi;
+
+si (q > m) y (q > p) ->
+	g := h
+[] (q <= m) ->
+	g := h * 2
+[] (q <= p) ->
+	g := h * 3
+fsi;
+
+si ( (q+1) >= p ) ->
+	si g*h < 0 ->
+		m := p
+	[] g*h >= 0 ->
+		m := p * 2
+	fsi
+fsi
+
+
+	
+
+{  }
+falgoritmo

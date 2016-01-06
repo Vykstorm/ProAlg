@@ -1,0 +1,8 @@
+algoritmo suma
+ent a,b : entero;
+sal c : entero;
+{ Ejemplo muy sencillo con la estructura básica de un algoritmo.
+  Precondición: a,b son enteros positivos }
+c := a + b
+{ Postcondición: c = a + b }
+falgoritmo

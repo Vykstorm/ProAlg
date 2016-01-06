@@ -1,0 +1,18 @@
+algoritmo foo
+{ Ejemplo con varias expresiones aritméticas y booleanas }
+var 
+	a,b,c : entero;
+	d,e,f : real;
+	g,h,i : booleano;
+fvar;
+
+d := ((a + b) * c) mod a;
+d := (c - a) div c;
+d := (e / f) * (a + b + c);
+
+g := (h o i) y g;
+g := no (h o i) y ((a >= b) o (d < e))
+
+
+{  }
+falgoritmo

@@ -1,0 +1,16 @@
+algoritmo foo
+{ Ejemplo con varias instrucciones de asignación }
+var 
+	a,b : entero;
+	c,d : real;
+	e,f : booleano;
+fvar;
+	a := b;
+	c := d;
+	e := f;
+	a := c;
+	e := f;
+	f := a > b 
+
+{  }
+falgoritmo

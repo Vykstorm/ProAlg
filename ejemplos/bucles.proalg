@@ -1,0 +1,20 @@
+algoritmo foo
+{ Ejemplo con varios bucles: De cota fija y de cota por expresión }
+var 
+	a,b,  i,j : entero;
+	c,d : real;
+	e,f : booleano;
+fvar;
+	b := 1;
+	para i := 1 hasta 50*3+1 hacer
+		b := b + i
+	fpara;
+	
+
+	mientras (e y f) y (c > d) hacer
+		c := c - 1
+	fmientras
+	
+
+{  }
+falgoritmo
