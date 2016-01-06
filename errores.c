@@ -2,6 +2,8 @@
 #include "tabla_simbolos.h"
 #include <stdarg.h>
 
+int any_recovered_error = 0;
+
 
 int __yyerror(const char* fmt, ...)
 {

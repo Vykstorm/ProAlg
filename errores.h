@@ -48,4 +48,19 @@ int parse_error(int err, ...);
 extern int line_number;
 
 
+
+/** Es una macro que es invocada por las rutinas semánticas asociadas a reglas
+ * que encapsulan errores semánticos (son reglas cuya parte derecha contiene el token
+ * error de bison). Al invocar este método, permite que la ejecución del parser continue, 
+ * a pesar de que se produzca el error (puesto que este error esta acotado), pero al finalizar
+ * el parseo, se lanzará un error para indicar realmente que el proceso de parseo contiene errores
+ * (esto se hace en la rutina semántica de la regla asociada al axioma, cuando se invoca CHECK_PARSE_ERRORS)
+ */
+#define REPORT_PARSE_ERROR any_recovered_error = 1
+
+#define CHECK_PARSE_ERRORS if(any_recovered_error) { YYERROR; }
+
+
+extern int any_recovered_error;
+
 #endif

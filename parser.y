@@ -20,6 +20,7 @@
 	#include "tabla_simbolos.h"
 	#include "traducciones.h"
 	
+	
 	/* estructura auxiliar para valores semánticos de ctes */
 	typedef struct C_cte_t
 	{
@@ -143,8 +144,6 @@
 
 %token <C_tipo_base> T_tipo_base
 
-
-
 /* Asociamos no terminales a campos de la unión */
 %type <C_lista_id> lista_id
 %type <C_tipo> d_tipo
@@ -175,6 +174,7 @@
 %type <E> M
 %type <E> N
 
+
 /* Indicamos la asociatividad y prioridad de los operadores */
 
 // Asociatividad en op. de referencia 
@@ -196,7 +196,7 @@
 %%
 	/* Zona de declaración de producciones de la gramática */
 axioma:
-	declaraciones instruccion T_comp_secuencial
+	desc_algoritmo { CHECK_PARSE_ERRORS; }
 /* Declaración para la estructura básica de un programa ProAlg */
 desc_algoritmo:
 	T_algoritmo T_id cabecera_alg bloque_alg T_falgoritmo
@@ -218,7 +218,6 @@ decl_a_f:
 
 bloque:
 	declaraciones instrucciones
-	| instrucciones
 	
 declaraciones:
 	declaraciones declaracion_tipo
@@ -514,6 +513,15 @@ instrucciones:
 	| instruccion { 
 		$$ = $1; 
 	}
+	
+	| instrucciones T_comp_secuencial error {
+		$$ = $1;
+		REPORT_PARSE_ERROR;
+	}
+	| error { 
+		$$.next = makelistempty();
+		REPORT_PARSE_ERROR;
+	}
 
 instruccion:
 	asignacion {  $$ = $1; }
@@ -780,6 +788,7 @@ decl_ent_sal:
 	decl_ent
 	| decl_ent decl_sal 
 	| decl_sal 
+	| %empty
 decl_ent: 
 	T_ent lista_de_var
 decl_sal:
@@ -848,7 +857,7 @@ l_ll:
 	int main(int argc,char ** argv)
 	{
 		TS_inicializar();
-		yyparse();
+		printf("%d\n", yyparse());
 		TS_liberar();
 	}
 	
