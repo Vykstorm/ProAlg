@@ -40,17 +40,21 @@ De forma adicional, muestra el lugar donde se han cometido los errores en cualqu
 ///////////////// ¿Que pasos se puedan dar para probar este compilador?
 
 //// 1º Instrucciones para construir el compilador. 
+
 Se proporciona un Makefile para esto. 
 
 Para construir el compilador por defecto
 $ make 
 
 //// 2º Como ejecutar el compilador
+
 El programa tomará siempre el código fuente por la entrada estandar y mostrará por la salida estandar,
 las instrucciones en código intermedio generadas.
 Puedes usar el siguiente comando para compilar el ejemplo después de haber construido el compilador.
 
 $ cat ejemplo.proalg | ./proalg
+
+También tienes más ejemplos en el directorio ejemplos/
 
 //// 3º Como depurar el compilador
 

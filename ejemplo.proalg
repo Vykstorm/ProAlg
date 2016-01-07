@@ -1,0 +1,27 @@
+algoritmo ejemplo
+ent a,b:entero;
+sal s : entero; t : real;
+{ Pre: a,b dos enteros cualesquiera }
+
+var 
+	mn, mx : entero;
+	i : entero;
+fvar;
+	mx := a;
+	mn := b;
+	
+	si a < b ->
+		mx := b;
+		mn := a
+	fsi;
+
+	s := 0;
+	para i := mn hasta mx hacer 
+		s := s + i;
+	fpara;
+
+	t := (mx + mn) div 2
+
+{ Post: s = suma de todos los enteros en el rango [min(a,b), max(a,b)] y t = (max(a,b)+min(a,b))/2  }
+
+falgoritmo
