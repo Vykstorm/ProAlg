@@ -351,11 +351,10 @@ void mostrar_simbolo(const void* s)
 
 void TS_printdebug()
 {
-	puts("---------------------------");
+	printf("\n\n______________ Contenido de la tabla de simbolos _____________\n");
 	printf("nº simbolos: %d\n", lista_len(simbolos));
 	printf("%5s %10s %25s\n", "ID", "NOMBRE", "TIPO");
 	lista_recorrer(simbolos, mostrar_simbolo);
-	puts("---------------------------");
 }
 
 
