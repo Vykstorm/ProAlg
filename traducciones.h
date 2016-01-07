@@ -116,6 +116,9 @@ lista makelistempty();
 // Comprueba si la lista está vacía
 int empty(lista L);
 
+// Imprime todas las cuadruplas.
+void print_quads();
+
 /* Los siguientes métodos crean cuadruplas correspondientes a cada uno de los tipos de instrucciones,
  * y llaman a gen, para guardarla en el fichero de cuadruplas */
 

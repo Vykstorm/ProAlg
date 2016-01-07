@@ -10,7 +10,7 @@
 /////// Métodos y variables auxiliares 
 int cont=0;
 lista cuadruplas = NULL;
-void print_cuadrupla(TR_cuadrupla q);
+void print_quad(TR_cuadrupla q);
 
 
 /////// Implementación de la interfaz
@@ -25,7 +25,7 @@ void gen(TR_cuadrupla q)
 	/* para depurar la generación de código */
 #ifdef TR_DEBUG
 	printf("gen(%d):  ", nextquad()-1);
-	print_cuadrupla(q);
+	print_quad(q);
 #endif
 }
 
@@ -38,7 +38,7 @@ void completar_salto(int salto, int quad)
 	/* imprimir información de depuración */
 #ifdef TR_DEBUG
 	printf("salto completado(%d):  ",salto);
-	print_cuadrupla(*q);
+	print_quad(*q);
 #endif
 }
 
@@ -81,6 +81,16 @@ lista merge(lista L1,lista L2)
 int nextquad()
 {
 	return (cuadruplas!=NULL) ? lista_len(cuadruplas) : 0;
+}
+
+
+void print_quads()
+{
+	void _print_quad(const void* quad)
+	{
+		print_quad(*(TR_cuadrupla*)quad);
+	}
+	lista_recorrer(cuadruplas, _print_quad);
 }
 
 void gen_asig_binaria(int op_binario, int op1, int op2, int res)
@@ -264,7 +274,7 @@ char* print_jump(int quad)
 }
 
 
-void print_cuadrupla(TR_cuadrupla q)
+void print_quad(TR_cuadrupla q)
 {
 	switch(q.op)
 	{
