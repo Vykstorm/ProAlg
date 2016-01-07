@@ -1,6 +1,5 @@
 
 debug = no
-parser_warnings = on
 bison_options = 
 debug_flags = 
 
@@ -41,8 +40,16 @@ endif
 ifeq ($(parser_debug),yes)
 	parser = parser.y
 	bison_options += -v
+	
+	ifeq ($(parser_warnings), )
+		parser_warnings = on
+	endif
 else
 	parser = parser.y
+	
+	ifeq ($(parser_warnings), )
+		parser_warnings = off
+	endif
 endif
 
 ifeq ($(parser_warnings),on)
