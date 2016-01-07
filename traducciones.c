@@ -90,7 +90,12 @@ void print_quads()
 	{
 		print_quad(*(TR_cuadrupla*)quad);
 	}
-	lista_recorrer(cuadruplas, _print_quad);
+	printf("\n\n______________ Instrucciones generadas _____________\n");
+	if(cuadruplas != NULL) /* no imprimir nada si no hay ninguna cuadrupla */
+	{
+		printf("num instrucciones: %d\n", lista_len(cuadruplas));
+		lista_recorrer(cuadruplas, _print_quad);
+	}
 }
 
 void gen_asig_binaria(int op_binario, int op1, int op2, int res)

@@ -893,12 +893,13 @@ l_ll:
 		switch(yyparse())
 		{
 			case 0:
-				printf("Compilación exitosa\n");
+				printf("\nCompilación exitosa\n");
 			break;
 			case 1:
-				printf("Error en la compilación\n");
+				printf("\nError en la compilación\n");
 			break;
 		}
+		print_quads();
 		TS_liberar();
 	}
 	
