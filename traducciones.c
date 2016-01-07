@@ -86,8 +86,10 @@ int nextquad()
 
 void print_quads()
 {
+	int i = 0;
 	void _print_quad(const void* quad)
 	{
+		printf("%dº: ", i++);
 		print_quad(*(TR_cuadrupla*)quad);
 	}
 	printf("\n\n______________ Instrucciones generadas _____________\n");
