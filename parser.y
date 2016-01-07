@@ -890,7 +890,15 @@ l_ll:
 	int main(int argc,char ** argv)
 	{
 		TS_inicializar();
-		printf("%d\n", yyparse());
+		switch(yyparse())
+		{
+			case 0:
+				printf("Compilación exitosa\n");
+			break;
+			case 1:
+				printf("Error en la compilación\n");
+			break;
+		}
 		TS_liberar();
 	}
 	
